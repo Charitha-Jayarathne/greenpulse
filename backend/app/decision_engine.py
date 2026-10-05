@@ -1,4 +1,7 @@
-from weather import is_rain_expected
+try:
+    from app.weather import is_rain_expected
+except ImportError:
+    from weather import is_rain_expected
 
 def evaluate_plant_condition(
     soil_moisture,

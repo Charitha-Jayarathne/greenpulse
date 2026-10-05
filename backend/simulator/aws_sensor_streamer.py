@@ -39,13 +39,13 @@ class PlantSensorSimulator:
         # Simulate gradual drying, with occasional automatic watering
         if self.moisture < 22.0:
             # Simulated watering event!
-            print("\n💧 [EVENT] Plant was watered! Soil moisture jumping up.")
+            print("\n[EVENT] Plant was watered! Soil moisture jumping up.")
             self.moisture += random.uniform(35.0, 45.0)
         else:
             # Natural drying (-0.8% to -2.0% per cycle)
             self.moisture -= random.uniform(0.8, 2.0)
 
-        # Natural temperature fluctuations (24°C - 35°C)
+        # Natural temperature fluctuations (24C - 35C)
         self.temperature += random.uniform(-0.5, 0.6)
         self.temperature = max(22.0, min(36.0, self.temperature))
 
@@ -68,7 +68,7 @@ def stream_to_aws(interval_seconds=5, max_readings=None):
     sim = PlantSensorSimulator()
 
     print("=" * 65)
-    print("🌿 GreenPulse AWS Sensor Streamer Active")
+    print("GreenPulse AWS Sensor Streamer Active")
     print(f"Target Lambda: {FUNCTION_NAME} ({AWS_REGION})")
     print(f"Target Device: {DEVICE_ID}")
     print(f"Interval     : Every {interval_seconds} seconds")
@@ -83,7 +83,7 @@ def stream_to_aws(interval_seconds=5, max_readings=None):
 
             print(f"\n[#{count}] Sending Telemetry:")
             print(f"     Soil Moisture : {reading['soil_moisture']}%")
-            print(f"     Temperature   : {reading['temperature']}°C")
+            print(f"     Temperature   : {reading['temperature']} C")
             print(f"     Humidity      : {reading['humidity']}%")
 
             # Call AWS Lambda synchronously to inspect the return diagnosis
@@ -102,8 +102,7 @@ def stream_to_aws(interval_seconds=5, max_readings=None):
                 msg = body.get("message", "")
                 trend = body.get("moisture_trend", "STABLE")
 
-                # Visual status indicator
-                indicator = "🟢" if status == "HEALTHY" else ("🟡" if status == "MONITOR" else "🔴")
+                indicator = "[OK]" if status == "HEALTHY" else ("[WARN]" if status == "MONITOR" else "[ALERT]")
                 print(f"     Lambda Result : {indicator} [{status}] (Urgency: {urgency})")
                 print(f"     Trend         : {trend}")
                 print(f"     Advice        : {msg}")

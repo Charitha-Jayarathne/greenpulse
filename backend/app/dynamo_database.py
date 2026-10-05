@@ -71,7 +71,7 @@ def get_latest_assessment(device_id):
 def display_device_dashboard(device_id="greenpulse-001"):
     """Fetch and print summary status from DynamoDB."""
     print("=" * 60)
-    print(f"📊 GreenPulse Cloud Dashboard — Device: {device_id}")
+    print(f"[DASHBOARD] GreenPulse Cloud Dashboard - Device: {device_id}")
     print("=" * 60)
 
     reading = get_latest_reading(device_id)
@@ -82,10 +82,10 @@ def display_device_dashboard(device_id="greenpulse-001"):
         return
 
     if reading:
-        print(f"🕒 Timestamp    : {reading.get('timestamp')}")
-        print(f"🌱 Soil Moisture: {reading.get('soil_moisture')}%")
-        print(f"🌡 Temperature  : {reading.get('temperature')}°C")
-        print(f"💧 Humidity     : {reading.get('humidity')}%")
+        print(f"Timestamp    : {reading.get('timestamp')}")
+        print(f"Soil Moisture: {reading.get('soil_moisture')}%")
+        print(f"Temperature  : {reading.get('temperature')} C")
+        print(f"Humidity     : {reading.get('humidity')}%")
 
     if assessment:
         print("-" * 60)

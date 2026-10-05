@@ -145,15 +145,21 @@ def lambda_handler(event, context):
         device_cfg = get_device_config(device_id)
 
         # 2. Save Raw Reading to DynamoDB
-        readings_table.put_item(
-            Item={
-                "device_id": device_id,
-                "timestamp": timestamp,
-                "soil_moisture": Decimal(str(round(soil_moisture, 2))),
-                "temperature": Decimal(str(round(temperature, 2))),
-                "humidity": Decimal(str(round(humidity, 2))),
-            }
-        )
+        reading_item = {
+            "device_id": device_id,
+            "timestamp": timestamp,
+            "soil_moisture": Decimal(str(round(soil_moisture, 2))),
+            "temperature": Decimal(str(round(temperature, 2))),
+            "humidity": Decimal(str(round(humidity, 2))),
+        }
+        if "soil_temperature" in body:
+            reading_item["soil_temperature"] = Decimal(str(round(float(body["soil_temperature"]), 2)))
+        if "air_quality_percent" in body:
+            reading_item["air_quality_percent"] = Decimal(str(round(float(body["air_quality_percent"]), 2)))
+        if "air_pressure" in body:
+            reading_item["air_pressure"] = Decimal(str(round(float(body["air_pressure"]), 2)))
+
+        readings_table.put_item(Item=reading_item)
 
         # 3. Compute moisture trend from DynamoDB history
         trend = get_moisture_trend(device_id)
