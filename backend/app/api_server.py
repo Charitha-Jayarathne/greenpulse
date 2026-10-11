@@ -23,7 +23,7 @@ load_dotenv(BASE_DIR / ".env")
 
 from app.weather import get_current_weather, is_rain_expected
 from app.decision_engine import evaluate_plant_condition
-from app.ai_service import generate_plant_advice
+from app.ai_service import generate_plant_advice, identify_plant_profile
 from app.plant_registry import PLANT_PRESETS, register_plant, get_plant_config
 
 app = Flask(__name__)
@@ -40,10 +40,15 @@ def add_cors_headers(response):
 active_config = {
     "device_id": "greenpulse-team-infinix",
     "plant_name": "Tomato",
+    "scientific_name": "Solanum lycopersicum",
+    "category": "Solanaceae / Fruiting Crop",
     "location_name": "Colombo",
     "min_moisture": 50.0,
     "max_moisture": 75.0,
-    "notes": "High moisture requirement, regular watering needed"
+    "sunlight": "Full Sun (6+ hours daily)",
+    "watering_frequency": "Deep regular watering",
+    "notes": "High moisture requirement, regular watering needed",
+    "is_registered": False
 }
 
 # Cache for latest sensor telemetry
@@ -79,31 +84,61 @@ def get_config():
         "presets": PLANT_PRESETS
     })
 
+@app.route("/api/ai/identify-plant", methods=["POST"])
+def ai_identify_plant():
+    """
+    Autonomous botanical classification and soil moisture auto-calibration via Gemini 3.8 Flash.
+    """
+    data = request.get_json() or {}
+    query = data.get("plant_name") or data.get("query") or ""
+    if not str(query).strip():
+        return jsonify({"error": "Plant name query is required"}), 400
+
+    profile = identify_plant_profile(str(query))
+    return jsonify({
+        "success": True,
+        "plant": profile
+    })
+
 @app.route("/api/config", methods=["POST"])
 def update_config():
     data = request.get_json() or {}
     plant_name = data.get("plant_name", active_config["plant_name"])
+    scientific_name = data.get("scientific_name", active_config.get("scientific_name", ""))
+    category = data.get("category", active_config.get("category", "Botanical Specimen"))
     location_name = data.get("location_name", active_config["location_name"])
+    sunlight = data.get("sunlight", active_config.get("sunlight", "Moderate Sunlight"))
+    watering_frequency = data.get("watering_frequency", active_config.get("watering_frequency", "Moderate"))
     
     preset = PLANT_PRESETS.get(plant_name, {})
     min_m = float(data.get("min_moisture", preset.get("min_moisture", 30.0)))
     max_m = float(data.get("max_moisture", preset.get("max_moisture", 70.0)))
-    notes = preset.get("notes", "Custom botanical threshold")
+    notes = data.get("notes") or preset.get("notes", "Auto-calibrated botanical profile")
 
     active_config["plant_name"] = plant_name
+    active_config["scientific_name"] = scientific_name
+    active_config["category"] = category
     active_config["location_name"] = location_name
     active_config["min_moisture"] = min_m
     active_config["max_moisture"] = max_m
+    active_config["sunlight"] = sunlight
+    active_config["watering_frequency"] = watering_frequency
     active_config["notes"] = notes
 
-    # Try to register in DynamoDB in background
+    active_config["is_registered"] = True
+
+    # Register in DynamoDB greenpulse_devices table
     try:
         register_plant(
             device_id=active_config["device_id"],
             plant_name=plant_name,
             location_name=location_name,
             min_moisture=min_m,
-            max_moisture=max_m
+            max_moisture=max_m,
+            scientific_name=scientific_name,
+            category=category,
+            sunlight=sunlight,
+            notes=notes
         )
     except Exception as e:
         print(f"Warning: DynamoDB registration error (using local state): {e}")
@@ -113,9 +148,19 @@ def update_config():
 
     return jsonify({
         "success": True,
-        "message": f"Updated active plant to {plant_name} in {location_name}",
+        "message": f"Registered active plant to {plant_name} in {location_name}",
         "config": active_config,
         "weather": weather_info
+    })
+
+@app.route("/api/config/unpair", methods=["POST"])
+def unpair_config():
+    """Unpairs the current device from the plant, requiring relocation & new registration."""
+    active_config["is_registered"] = False
+    return jsonify({
+        "success": True,
+        "message": "Device successfully unpaired. Ready for new plant relocation and registration.",
+        "config": active_config
     })
 
 def fetch_weather(city_name):
