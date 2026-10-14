@@ -80,14 +80,14 @@ TEMPLATE_HTML = f"""
             <!-- Quick Suggestions Tags -->
             <div class="gp-quick-search-tags">
               <span class="gp-quick-label">💡 Botanical Suggestions:</span>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Snake Plant')">🌱 Snake Plant</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Karapincha / Curry Leaves')">🌿 Curry Leaves (Karapincha)</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Tomato')">🍅 Tomato</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Monstera Deliciosa')">🍃 Monstera</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Aloe Vera')">🌵 Aloe Vera</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Chili / Pepper')">🌶️ Chili / Pepper</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Mint')">🌱 Mint</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Orchid')">🌸 Orchid</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Snake Plant'}}" ng-click="quickSelectPlant('Snake Plant')">🌱 Snake Plant</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Karapincha / Curry Leaves'}}" ng-click="quickSelectPlant('Karapincha / Curry Leaves')">🌿 Curry Leaves (Karapincha)</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Tomato'}}" ng-click="quickSelectPlant('Tomato')">🍅 Tomato</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Monstera Deliciosa'}}" ng-click="quickSelectPlant('Monstera Deliciosa')">🍃 Monstera</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Aloe Vera'}}" ng-click="quickSelectPlant('Aloe Vera')">🌵 Aloe Vera</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Chili / Pepper'}}" ng-click="quickSelectPlant('Chili / Pepper')">🌶️ Chili / Pepper</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Mint'}}" ng-click="quickSelectPlant('Mint')">🌱 Mint</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Orchid'}}" ng-click="quickSelectPlant('Orchid')">🌸 Orchid</button>
             </div>
           </div>
 
@@ -97,6 +97,15 @@ TEMPLATE_HTML = f"""
             <div>
               <strong>Gemini 3.8 Flash Botanical Model in progress...</strong>
               <div class="gp-sub-txt">Consulting taxonomic databases and calculating precise root-zone volumetric moisture boundaries for "{{{{plantSearchQuery}}}}"...</div>
+            </div>
+          </div>
+
+          <!-- Guidance Prompt (Shown before calibration) -->
+          <div class="gp-ai-pending-banner" ng-if="!aiPlantProfile && !aiSearching">
+            <div class="gp-pending-icon">🌱</div>
+            <div>
+              <strong>Select or type a plant, then click "✨ AI Identify & Calibrate"</strong>
+              <div class="gp-sub-txt">Choose a suggestion above or enter any species name, then click the calibrate button to compute optimal root-zone soil moisture boundaries.</div>
             </div>
           </div>
 
@@ -692,10 +701,28 @@ md-toolbar.nr-dashboard-toolbar {{
   cursor: pointer;
   transition: all 0.2s;
 }}
-.gp-tag-chip:hover {{
+.gp-tag-chip:hover, .gp-tag-chip.chip-active {{
   border-color: #10b981;
   color: #059669;
   background: #ecfdf5;
+}}
+.gp-tag-chip.chip-active {{
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  font-weight: 700;
+}}
+.gp-ai-pending-banner {{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  color: #475569;
+}}
+.gp-pending-icon {{
+  font-size: 24px;
 }}
 .gp-ai-identifying-banner {{
   display: flex;
@@ -1360,33 +1387,33 @@ md-toolbar.nr-dashboard-toolbar {{
   scope.quickCities = ["Colombo", "Kandy", "Galle", "Kurunegala", "Negombo", "Gampaha", "Nuwara Eliya", "Jaffna"];
 
   // AI Plant Search & Autonomous Calibration State
-  scope.plantSearchQuery = "Snake Plant";
+  scope.plantSearchQuery = "";
   scope.aiSearching = false;
   scope.aiPlantProfile = null;
 
   // Registration Form State
   scope.regData = {{
-    plant_name: "Snake Plant",
-    scientific_name: "Dracaena trifasciata",
-    category: "Asparagaceae / Succulent Foliage",
+    plant_name: "",
+    scientific_name: "",
+    category: "",
     location_name: "Colombo",
-    min_moisture: 20.0,
-    max_moisture: 45.0,
-    sunlight: "Low to bright indirect light",
-    watering_frequency: "Every 2 to 4 weeks",
-    notes: "Resilient drought-tolerant plant"
+    min_moisture: null,
+    max_moisture: null,
+    sunlight: "",
+    watering_frequency: "",
+    notes: ""
   }};
 
   // Active Monitoring Plant State
   scope.plant = {{
-    plant_name: "Snake Plant",
-    scientific_name: "Dracaena trifasciata",
-    category: "Asparagaceae / Succulent Foliage",
+    plant_name: "",
+    scientific_name: "",
+    category: "",
     location_name: "Colombo",
-    min_moisture: 20.0,
-    max_moisture: 45.0,
-    sunlight: "Low to bright indirect light",
-    watering_frequency: "Every 2 to 4 weeks",
+    min_moisture: 30.0,
+    max_moisture: 70.0,
+    sunlight: "",
+    watering_frequency: "",
     notes: ""
   }};
 
@@ -1433,7 +1460,6 @@ md-toolbar.nr-dashboard-toolbar {{
       scope.viewMode = 'dashboard';
     }} else {{
       scope.viewMode = 'register';
-      scope.searchAndIdentifyPlant();
     }}
 
     scope.fetchBackendConfig();
@@ -1442,7 +1468,6 @@ md-toolbar.nr-dashboard-toolbar {{
 
   scope.quickSelectPlant = function(name) {{
     scope.plantSearchQuery = name;
-    scope.searchAndIdentifyPlant();
   }};
 
   // Gemini 3.8 Flash Plant Identification & Moisture Calibration
@@ -1629,6 +1654,14 @@ md-toolbar.nr-dashboard-toolbar {{
     scope.viewMode = 'register';
     scope.plantSearchQuery = "";
     scope.aiPlantProfile = null;
+    scope.regData.plant_name = "";
+    scope.regData.scientific_name = "";
+    scope.regData.category = "";
+    scope.regData.min_moisture = null;
+    scope.regData.max_moisture = null;
+    scope.regData.sunlight = "";
+    scope.regData.watering_frequency = "";
+    scope.regData.notes = "";
     scope.$applyAsync();
   }};
 
