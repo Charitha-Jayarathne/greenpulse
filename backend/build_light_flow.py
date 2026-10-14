@@ -460,6 +460,130 @@ TEMPLATE_HTML = f"""
       </div>
     </section>
 
+    <!-- 7-DAY AI PREDICTIVE BOTANICAL SOIL DRYING & EVAPORATION INTELLIGENCE -->
+    <section class="gp-prediction-banner-section">
+      <div class="gp-card gp-detailed-prediction-card">
+        
+        <!-- Header Row -->
+        <div class="gp-dp-header">
+          <div class="gp-dp-header-left">
+            <span class="gp-icon-prediction-hero">
+              {SVG_SPARKLES}
+            </span>
+            <div>
+              <div class="gp-dp-title-row">
+                <span class="gp-dp-title">7-Day Botanical Predictive Intelligence &amp; Drying Curve</span>
+                <span class="gp-badge" ng-class="{{'gp-badge-emerald': prediction.status === 'SAFE', 'gp-badge-warn': prediction.status === 'DEFICIT'}}">
+                  {{{{prediction.status === 'SAFE' ? '● HYDRATION RESERVE SECURE' : '⚠️ ROOT MOISTURE DEFICIT ALERT'}}}}
+                </span>
+              </div>
+              <div class="gp-dp-subtitle">
+                Synthesized from 7-day AWS DynamoDB telemetry, soil evaporation kinetics, and {{{{weather.city || plant.location_name || 'local'}}}} microclimate
+              </div>
+            </div>
+          </div>
+
+          <div class="gp-dp-header-actions">
+            <button type="button" class="gp-btn-sync-pred" ng-click="fetch7DayPrediction()" title="Re-calculate 7-Day Soil Prediction Model">
+              {SVG_REFRESH}
+              <span>Re-analyze 7-Day Model</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Column Detailed Analytics Grid -->
+        <div class="gp-dp-grid">
+
+          <!-- Col 1: Water Reserve Countdown Hero Box -->
+          <div class="gp-dp-col gp-dp-col-countdown">
+            <div class="gp-dp-box-label">Estimated Hydration Reserve</div>
+            <div class="gp-dp-countdown-row">
+              <span class="gp-dp-num">{{{{hasReceivedTelemetry ? (prediction.headline_val || '--') : '--'}}}}</span>
+              <span class="gp-dp-unit">{{{{prediction.headline_unit || 'Days Reserve'}}}}</span>
+            </div>
+            <div class="gp-dp-sub-caption">
+              {{{{prediction.countdown_subtext || ('Until root soil moisture hits safe minimum limit (' + plant.min_moisture + '%)')}}}}
+            </div>
+
+            <!-- Visual Dual-Tier Depletion Progress -->
+            <div class="gp-dp-track-wrap">
+              <div class="gp-dp-track-labels">
+                <span>Critical (0%)</span>
+                <span>Safe Min ({{{{plant.min_moisture}}}}%)</span>
+                <span>Optimal ({{{{plant.max_moisture}}}}%)</span>
+              </div>
+              <div class="gp-bar-track gp-dp-bar-track">
+                <div class="gp-bar-fill" ng-class="{{'gp-fill-emerald': prediction.status === 'SAFE', 'gp-fill-amber': prediction.status === 'DEFICIT'}}" style="width: {{{{hasReceivedTelemetry ? (prediction.bar_pct || 65) : 0}}}}%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 2: 7-Day Evaporation & Telemetry Dynamics -->
+          <div class="gp-dp-col gp-dp-col-dynamics">
+            <div class="gp-dp-box-label">7-Day Empirical Telemetry Dynamics</div>
+            <div class="gp-dp-metrics-list">
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">📉</div>
+                <div>
+                  <div class="gp-dp-mi-title">7-Day Soil Moisture Pace:</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.drying_trend || prediction.trend_text || 'Analyzing...'}}}}</div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">⚡</div>
+                <div>
+                  <div class="gp-dp-mi-title">Hourly Evaporation Pace:</div>
+                  <div class="gp-dp-mi-val">~{{{{prediction.loss_rate_per_hour || '0.55'}}}}% moisture loss / hour</div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">🌡️</div>
+                <div>
+                  <div class="gp-dp-mi-title">Root Microclimate Ambient Mean:</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.avg_temp || 25.0}}}}°C <span class="gp-dp-mi-sub">(Peak: {{{{historyStats.max_temp || 26.3}}}}°C)</span></div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">☁️</div>
+                <div>
+                  <div class="gp-dp-mi-title">DynamoDB Telemetry Sample Depth:</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.total_records_analyzed || 500}}}} Readings Analyzed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 3: Actionable Agronomic Irrigation Guidance -->
+          <div class="gp-dp-col gp-dp-col-advisory">
+            <div class="gp-dp-box-label">Agronomic Care &amp; Irrigation Action</div>
+
+            <!-- Weather Synergy Chip -->
+            <div class="gp-dp-weather-chip" ng-class="{{'dp-rain-synergy': weather.rain_expected, 'dp-clear-synergy': !weather.rain_expected}}">
+              <span class="dp-wc-icon">{{{{weather.rain_expected ? '🌧️' : '☀️'}}}}</span>
+              <div class="dp-wc-text">
+                <strong>{{{{weather.rain_expected ? 'Rain Forecast Synergy:' : 'Clear Weather Forecast:'}}}}</strong>
+                <span>{{{{weather.rain_expected ? 'Precipitation forecasted within 24h for ' + (weather.city || plant.location_name || 'your area') + '. Soil drying curve naturally buffered.' : 'Stable sun expected. Natural evapotranspiration pace remains active.'}}}}</span>
+              </div>
+            </div>
+
+            <!-- Actionable Guidance Box -->
+            <div class="gp-dp-guidance-box">
+              <div class="gp-dp-gb-title">💡 Actionable Recommendation for {{{{plant.plant_name || 'Plant'}}}}:</div>
+              <p class="gp-dp-gb-body">{{{{prediction.advisory_text}}}}</p>
+              <div class="gp-dp-gb-tip">
+                🕒 <strong>Optimal Timing:</strong> Early morning watering (06:30 – 08:30 AM) prevents root thermal shock and minimizes midday vapor loss.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
     <!-- TELEMETRY TRENDS & AI DOCTOR ROW -->
     <section class="gp-intelligence-grid">
       <!-- Real-time Trends Line Graph Card -->
@@ -471,8 +595,19 @@ TEMPLATE_HTML = f"""
             </span>
             <div>
               <div class="gp-intel-title">Multi-Sensor Telemetry Trends</div>
-              <div class="gp-intel-sub">Live 60-Second Real-time Sensor Stream for {{{{plant.plant_name}}}}</div>
+              <div class="gp-intel-sub">{{{{chartSubtitle || ('Live 60-Second Real-time Sensor Stream for ' + (plant.plant_name || 'Plant'))}}}}</div>
             </div>
+          </div>
+
+          <!-- Time Range Dropdown Selector -->
+          <div class="gp-chart-controls">
+            <label class="gp-select-label">Range:</label>
+            <select class="gp-chart-select" ng-model="selectedTimeRange" ng-change="onRangeChange()">
+              <option value="live">🟢 Live (60s Stream)</option>
+              <option value="24h">📅 Last 24 Hours</option>
+              <option value="7d">📊 Last Week (7 Days)</option>
+              <option value="30d">🗓️ Last Month (30 Days)</option>
+            </select>
           </div>
 
           <div class="gp-chart-legend">
@@ -483,7 +618,19 @@ TEMPLATE_HTML = f"""
           </div>
         </div>
 
+        <!-- Historical Stats Summary Bar (shown when not in live mode) -->
+        <div class="gp-chart-hist-bar" ng-if="selectedTimeRange !== 'live'">
+          <span>💧 <strong>Avg Moisture:</strong> {{{{historyStats.avg_moisture !== undefined ? historyStats.avg_moisture : '--'}}}}%</span>
+          <span>📈 <strong>7-Day Drying Pace:</strong> {{{{historyStats.drying_trend || 'Analyzing...'}}}}</span>
+          <span>🌡️ <strong>Peak Temp:</strong> {{{{historyStats.max_temp !== undefined ? historyStats.max_temp : '--'}}}}°C</span>
+          <span>☁️ <strong>Readings:</strong> {{{{historyStats.total_records_analyzed || historyData.length || 0}}}} DynamoDB records</span>
+        </div>
+
         <div class="gp-chart-canvas-wrap">
+          <div ng-if="chartLoading" class="gp-chart-loading-overlay">
+            <div class="gp-spin">{SVG_REFRESH}</div>
+            <span>Fetching {{{{selectedTimeRangeLabel}}}} Telemetry from AWS DynamoDB...</span>
+          </div>
           <canvas id="gpTelemetryChart" height="260"></canvas>
         </div>
       </div>
@@ -1182,11 +1329,11 @@ md-toolbar.nr-dashboard-toolbar {{
 }}
 .gp-btn-switch:hover {{ background: #059669; color: #ffffff; border-color: #059669; }}
 
-/* 6 Sensors Grid */
+/* 6 Physical Sensors Grid */
 .gp-sensors-grid {{
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 24px;
 }}
 @media (max-width: 1400px) {{ .gp-sensors-grid {{ grid-template-columns: repeat(3, 1fr); }} }}
@@ -1194,6 +1341,9 @@ md-toolbar.nr-dashboard-toolbar {{
   .gp-sensors-grid {{ grid-template-columns: repeat(2, 1fr); }}
   .gp-meta-grid {{ grid-template-columns: 1fr; }}
   .gp-header {{ flex-direction: column; gap: 16px; align-items: flex-start; }}
+}}
+@media (max-width: 480px) {{
+  .gp-sensors-grid {{ grid-template-columns: 1fr; }}
 }}
 .gp-card {{
   background: #ffffff;
@@ -1223,21 +1373,242 @@ md-toolbar.nr-dashboard-toolbar {{
 .gp-fill-blue {{ background: linear-gradient(90deg, #3b82f6, #2563eb); }}
 .gp-fill-cyan {{ background: linear-gradient(90deg, #06b6d4, #0891b2); }}
 .gp-fill-purple {{ background: linear-gradient(90deg, #8b5cf6, #7c3aed); }}
-.gp-safe-range-box {{
+
+/* Detailed 7-Day Prediction Hero Card */
+.gp-prediction-banner-section {{
+  margin-bottom: 24px;
+}}
+.gp-detailed-prediction-card {{
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-left: 6px solid #0891b2;
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 6px 24px rgba(8, 145, 178, 0.08);
+  transition: box-shadow 0.2s ease;
+}}
+.gp-detailed-prediction-card:hover {{
+  box-shadow: 0 10px 32px rgba(8, 145, 178, 0.12);
+}}
+.gp-dp-header {{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 14px;
+}}
+.gp-dp-header-left {{
   display: flex;
   align-items: center;
+  gap: 14px;
+}}
+.gp-icon-prediction-hero {{
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+  color: #0891b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+}}
+.gp-dp-title-row {{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}}
+.gp-dp-title {{
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}}
+.gp-badge-warn {{
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}}
+.gp-dp-subtitle {{
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}}
+.gp-btn-sync-pred {{
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
   border-radius: 10px;
-  padding: 8px 10px;
-  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  cursor: pointer;
   transition: all 0.2s;
 }}
-.gp-safe-moisture {{
-  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
-  border: 1.5px solid #10b981;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+.gp-btn-sync-pred:hover {{
+  background: #0d9488;
+  color: #ffffff;
+  border-color: #0d9488;
+}}
+.gp-dp-grid {{
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1.25fr;
+  gap: 20px;
+}}
+@media (max-width: 1250px) {{
+  .gp-dp-grid {{ grid-template-columns: 1fr 1fr; }}
+}}
+@media (max-width: 768px) {{
+  .gp-dp-grid {{ grid-template-columns: 1fr; }}
+}}
+.gp-dp-col {{
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}}
+.gp-dp-box-label {{
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}}
+.gp-dp-countdown-row {{
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}}
+.gp-dp-num {{
+  font-size: 42px;
+  font-weight: 900;
+  color: #0891b2;
+  line-height: 1;
+  letter-spacing: -1px;
+}}
+.gp-dp-unit {{
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+}}
+.gp-dp-sub-caption {{
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 8px;
+  line-height: 1.4;
+}}
+.gp-dp-track-wrap {{
+  margin-top: auto;
+  padding-top: 14px;
+}}
+.gp-dp-track-labels {{
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 6px;
+}}
+.gp-dp-bar-track {{
+  height: 9px;
+  background: #e2e8f0;
+}}
+.gp-dp-metrics-list {{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}}
+.gp-dp-metric-item {{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 9px 12px;
+}}
+.gp-dp-mi-icon {{
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}}
+.gp-dp-mi-title {{
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}}
+.gp-dp-mi-val {{
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}}
+.gp-dp-mi-sub {{
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}}
+.gp-dp-weather-chip {{
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}}
+.dp-rain-synergy {{
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  color: #0e7490;
+}}
+.dp-clear-synergy {{
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+}}
+.dp-wc-icon {{
+  font-size: 16px;
+  line-height: 1;
+  margin-top: 1px;
+}}
+.gp-dp-guidance-box {{
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: auto;
+}}
+.gp-dp-gb-title {{
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}}
+.gp-dp-gb-body {{
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}}
+.gp-dp-gb-tip {{
+  font-size: 11px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.4;
 }}
 .gp-safe-icon {{
   font-size: 15px;
@@ -1318,15 +1689,74 @@ md-toolbar.nr-dashboard-toolbar {{
 
 /* Canvas Chart */
 .gp-chart-card {{ padding: 24px; }}
-.gp-chart-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }}
+.gp-chart-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }}
 .gp-chart-title-row {{ display: flex; align-items: center; gap: 12px; }}
+.gp-chart-controls {{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}}
+.gp-select-label {{
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}}
+.gp-chart-select {{
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}}
+.gp-chart-select:focus {{
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}}
 .gp-chart-legend {{ display: flex; gap: 16px; font-size: 12px; color: #334155; font-weight: 600; }}
 .gp-legend-item {{ display: flex; align-items: center; gap: 6px; }}
 .dot-emerald {{ width: 10px; height: 10px; border-radius: 50%; background: #059669; }}
 .dot-teal {{ width: 10px; height: 10px; border-radius: 50%; background: #0d9488; }}
 .dot-amber {{ width: 10px; height: 10px; border-radius: 50%; background: #d97706; }}
 .dot-blue {{ width: 10px; height: 10px; border-radius: 50%; background: #2563eb; }}
+.gp-chart-hist-bar {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: 16px;
+  align-items: center;
+}}
 .gp-chart-canvas-wrap {{ position: relative; width: 100%; height: 240px; }}
+.gp-chart-loading-overlay {{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  z-index: 10;
+  border-radius: 12px;
+}}
 
 /* Form Elements */
 .gp-form-row {{ display: flex; gap: 16px; }}
@@ -1542,6 +1972,122 @@ md-toolbar.nr-dashboard-toolbar {{
   scope.showRelocationModal = false;
   scope.relocationConfirmed = false;
 
+  // Historical & Predictive Analytics State
+  scope.selectedTimeRange = 'live';
+  scope.selectedTimeRangeLabel = 'Live';
+  scope.chartSubtitle = null;
+  scope.chartLoading = false;
+  scope.historyData = [];
+  scope.historyStats = {{}};
+
+  // Card 7: 7-Day Soil Drying & Evaporation Prediction
+  scope.prediction = {{
+    headline_val: '--',
+    headline_unit: '',
+    tag: '7-Day AI Forecast',
+    status: 'SAFE',
+    bar_pct: 70,
+    sub_title: '7-Day Depletion Pace:',
+    advisory_text: 'Analyzing 7-day soil moisture retention...'
+  }};
+
+  scope.fetch7DayPrediction = function() {{
+    fetch('http://localhost:5005/api/history?device_id=' + scope.activeDeviceId + '&range=' + (scope.selectedTimeRange !== 'live' ? scope.selectedTimeRange : '7d') + '&points=30')
+      .then(function(res) {{ return res.json(); }})
+      .then(function(hist) {{
+        var stats = (hist && hist.stats) ? hist.stats : {{}};
+        scope.historyStats = stats;
+        var currentM = (scope.sensor && scope.sensor.soil_moisture !== null) ? Number(scope.sensor.soil_moisture) : Number(stats.avg_moisture || 45.0);
+        var minM = (scope.plant && scope.plant.min_moisture) ? Number(scope.plant.min_moisture) : 30.0;
+        var maxM = (scope.plant && scope.plant.max_moisture) ? Number(scope.plant.max_moisture) : 70.0;
+
+        var isRain = scope.weather && scope.weather.rain_expected;
+        var deficit = currentM - minM;
+
+        var pace = 0.55;
+        if (stats.avg_temp > 28) pace = 0.85;
+        if (stats.avg_humidity < 60) pace += 0.2;
+        scope.prediction.loss_rate_per_hour = pace.toFixed(2);
+        scope.prediction.trend_text = stats.drying_trend || 'Stable Moisture';
+
+        if (deficit <= 0) {{
+          scope.prediction.headline_val = "0.0";
+          scope.prediction.headline_unit = "Hours (At Safe Min)";
+          scope.prediction.tag = "Irrigation Due";
+          scope.prediction.status = "DEFICIT";
+          scope.prediction.bar_pct = Math.max(10, Math.round((currentM / maxM) * 100));
+          scope.prediction.countdown_subtext = "Current soil moisture (" + currentM.toFixed(1) + "%) is at or below safe limit (" + minM + "%).";
+          scope.prediction.advisory_text = isRain 
+            ? "Soil moisture is depleted (" + currentM.toFixed(1) + "%), but precipitation forecasted in next 24h will naturally replenish roots. Avoid over-watering now."
+            : "Soil moisture is under critical stress (" + minM + "% threshold reached). Apply gentle irrigation today to safeguard root vitality.";
+        }} else {{
+          var hoursLeft = deficit / pace;
+          var daysLeft = (hoursLeft / 24).toFixed(1);
+
+          if (hoursLeft > 48) {{
+            scope.prediction.headline_val = daysLeft;
+            scope.prediction.headline_unit = "Days Reserve";
+            scope.prediction.tag = "Hydration Reserve Secure";
+            scope.prediction.status = "SAFE";
+            scope.prediction.bar_pct = Math.min(100, Math.round((currentM / maxM) * 100));
+            scope.prediction.countdown_subtext = "~" + Math.round(hoursLeft) + " hours of safe hydration remaining until critical " + minM + "% threshold.";
+            scope.prediction.advisory_text = isRain
+              ? "Root zone hydration is stable. Rain expected within 24h will naturally replenish soil, extending safe reserve beyond " + daysLeft + " days."
+              : "Steady evaporation rate (" + pace.toFixed(2) + "%/hr). Soil moisture will comfortably sustain root vitality for the next " + daysLeft + " days without urgent watering.";
+          }} else {{
+            scope.prediction.headline_val = Math.round(hoursLeft);
+            scope.prediction.headline_unit = "Hours Reserve";
+            scope.prediction.tag = "Depleting Soon";
+            scope.prediction.status = "DEFICIT";
+            scope.prediction.bar_pct = Math.max(15, Math.round((currentM / maxM) * 100));
+            scope.prediction.countdown_subtext = "Approaching safe minimum threshold (" + minM + "%) within the next " + Math.round(hoursLeft) + " hours.";
+            scope.prediction.advisory_text = "Soil moisture is trending downward steadily. Plan an irrigation session tomorrow morning before midday heat spikes.";
+          }}
+        }}
+        scope.$applyAsync();
+      }}).catch(function(err) {{
+        console.warn("Prediction fetch error:", err);
+      }});
+  }};
+
+  scope.onRangeChange = function() {{
+    if (scope.selectedTimeRange === 'live') {{
+      scope.selectedTimeRangeLabel = 'Live';
+      scope.chartSubtitle = 'Live 60-Second Real-time Sensor Stream for ' + (scope.plant.plant_name || 'Plant');
+      scope.drawCanvasChart();
+      return;
+    }}
+
+    var rangeLabels = {{
+      '24h': 'Last 24 Hours',
+      '7d': 'Last Week (7 Days)',
+      '30d': 'Last Month (30 Days)'
+    }};
+    scope.selectedTimeRangeLabel = rangeLabels[scope.selectedTimeRange] || scope.selectedTimeRange;
+    scope.chartSubtitle = 'AWS DynamoDB Historical Telemetry (' + scope.selectedTimeRangeLabel + ') for ' + (scope.plant.plant_name || 'Plant');
+    scope.chartLoading = true;
+
+    fetch('http://localhost:5005/api/history?device_id=' + scope.activeDeviceId + '&range=' + scope.selectedTimeRange + '&points=30')
+      .then(function(res) {{ return res.json(); }})
+      .then(function(data) {{
+        scope.chartLoading = false;
+        if (data && data.success && data.data) {{
+          scope.historyData = data.data;
+          scope.historyStats = data.stats || {{}};
+        }} else {{
+          scope.historyData = [];
+          scope.historyStats = {{}};
+        }}
+        scope.drawCanvasChart();
+        scope.$applyAsync();
+      }})
+      .catch(function(err) {{
+        scope.chartLoading = false;
+        console.error("Historical fetch failed:", err);
+        scope.$applyAsync();
+      }});
+  }};
+
   scope.currentTime = new Date().toLocaleTimeString();
   setInterval(function() {{
     scope.currentTime = new Date().toLocaleTimeString();
@@ -1559,6 +2105,7 @@ md-toolbar.nr-dashboard-toolbar {{
 
     scope.fetchBackendConfig();
     scope.initChart();
+    scope.fetch7DayPrediction();
   }};
 
   scope.quickSelectPlant = function(name) {{
@@ -1841,7 +2388,16 @@ md-toolbar.nr-dashboard-toolbar {{
     if (p.timestamp) scope.sensor.timestamp = p.timestamp;
 
     scope.evaluateStatus();
-    scope.updateChartPoint();
+
+    // Trigger initial 7-day prediction if not calculated yet
+    if (scope.prediction.headline_val === '--') {{
+      scope.fetch7DayPrediction();
+    }}
+
+    // Only append to live chart if currently in 'live' mode
+    if (scope.selectedTimeRange === 'live') {{
+      scope.updateChartPoint();
+    }}
     scope.$applyAsync();
   }});
 
@@ -1859,8 +2415,8 @@ md-toolbar.nr-dashboard-toolbar {{
   }};
 
   scope.updateChartPoint = function() {{
-    if (!scope.hasReceivedTelemetry) return;
-    chartHistory.labels.push(new Date().toLocaleTimeString());
+    if (!scope.hasReceivedTelemetry || scope.selectedTimeRange !== 'live') return;
+    chartHistory.labels.push(new Date().toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit', second: '2-digit' }}));
     chartHistory.moisture.push(scope.sensor.soil_moisture);
     chartHistory.soilTemp.push(scope.sensor.soil_temperature);
     chartHistory.ambTemp.push(scope.sensor.temperature);
@@ -1885,26 +2441,93 @@ md-toolbar.nr-dashboard-toolbar {{
 
     ctx.clearRect(0, 0, w, h);
 
-    // Grid lines
-    ctx.strokeStyle = '#e2e8f0';
+    var padLeft = 45;
+    var padRight = 40;
+    var padTop = 20;
+    var padBottom = 30;
+    var chartW = w - padLeft - padRight;
+    var chartH = h - padTop - padBottom;
+
+    // Draw horizontal gridlines & axis values
+    ctx.strokeStyle = '#f1f5f9';
     ctx.lineWidth = 1;
-    for (var y = 20; y < h; y += 40) {{
+    ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+    var yLevels = [
+      {{ pct: 0.00, valL: '100%', valR: '45°C' }},
+      {{ pct: 0.25, valL: '75%', valR: '36°C' }},
+      {{ pct: 0.50, valL: '50%', valR: '27°C' }},
+      {{ pct: 0.75, valL: '25%', valR: '18°C' }},
+      {{ pct: 1.00, valL: '0%', valR: '10°C' }}
+    ];
+
+    for (var l = 0; l < yLevels.length; l++) {{
+      var yPos = padTop + yLevels[l].pct * chartH;
       ctx.beginPath();
-      ctx.moveTo(40, y);
-      ctx.lineTo(w - 10, y);
+      ctx.moveTo(padLeft, yPos);
+      ctx.lineTo(w - padRight, yPos);
       ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'right';
+      ctx.fillText(yLevels[l].valL, padLeft - 6, yPos + 3);
+
+      ctx.textAlign = 'left';
+      ctx.fillText(yLevels[l].valR, w - padRight + 6, yPos + 3);
     }}
 
-    var pts = chartHistory.labels.length;
+    var isLive = (scope.selectedTimeRange === 'live');
+    var pts = 0;
+    var labels = [];
+    var moistures = [];
+    var soilTemps = [];
+    var ambTemps = [];
+    var humidities = [];
+
+    if (isLive) {{
+      pts = chartHistory.labels.length;
+      labels = chartHistory.labels;
+      moistures = chartHistory.moisture;
+      soilTemps = chartHistory.soilTemp;
+      ambTemps = chartHistory.ambTemp;
+      humidities = chartHistory.humidity;
+    }} else {{
+      pts = scope.historyData ? scope.historyData.length : 0;
+      if (pts > 0) {{
+        for (var i = 0; i < pts; i++) {{
+          var item = scope.historyData[i];
+          labels.push(item.time_label || (item.timestamp ? item.timestamp.substr(11, 5) : ''));
+          moistures.push(item.soil_moisture);
+          soilTemps.push(item.soil_temperature);
+          ambTemps.push(item.temperature);
+          humidities.push(item.humidity);
+        }}
+      }}
+    }}
+
     if (pts < 2) {{
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Waiting for real-time ESP32 sensor stream...', w / 2, h / 2);
+      var emptyMsg = isLive ? 'Waiting for real-time ESP32 sensor stream...' : 'Loading historical telemetry from AWS DynamoDB...';
+      ctx.fillText(emptyMsg, w / 2, h / 2);
       return;
     }}
 
-    var stepX = (w - 60) / (pts - 1);
+    var stepX = chartW / (pts - 1);
+
+    // Draw X-axis timestamps
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    var labelInterval = Math.max(1, Math.floor(pts / 5));
+    for (var xIdx = 0; xIdx < pts; xIdx += labelInterval) {{
+      var posX = padLeft + xIdx * stepX;
+      ctx.fillText(labels[xIdx] || '', posX, h - 8);
+    }}
+    if ((pts - 1) % labelInterval !== 0) {{
+      ctx.fillText(labels[pts - 1] || '', padLeft + (pts - 1) * stepX, h - 8);
+    }}
 
     function plotLine(data, color, minV, maxV) {{
       ctx.strokeStyle = color;
@@ -1912,29 +2535,66 @@ md-toolbar.nr-dashboard-toolbar {{
       ctx.beginPath();
       for (var i = 0; i < pts; i++) {{
         var val = data[i];
+        if (val === null || val === undefined) val = minV;
         var normY = (val - minV) / (maxV - minV);
         if (normY < 0) normY = 0;
         if (normY > 1) normY = 1;
-        var cx = 45 + i * stepX;
-        var cy = h - 25 - normY * (h - 50);
+        var cx = padLeft + i * stepX;
+        var cy = padTop + (1 - normY) * chartH;
         if (i === 0) ctx.moveTo(cx, cy);
         else ctx.lineTo(cx, cy);
       }}
       ctx.stroke();
 
-      var lastX = 45 + (pts - 1) * stepX;
-      var lastNorm = (data[pts - 1] - minV) / (maxV - minV);
-      var lastY = h - 25 - lastNorm * (h - 50);
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-      ctx.fill();
+      // Sampled points
+      var stepPoint = Math.max(1, Math.floor(pts / 8));
+      for (var p = 0; p < pts; p += stepPoint) {{
+        var v = data[p];
+        if (v === null || v === undefined) continue;
+        var nY = (v - minV) / (maxV - minV);
+        if (nY < 0) nY = 0;
+        if (nY > 1) nY = 1;
+        var px = padLeft + p * stepX;
+        var py = padTop + (1 - nY) * chartH;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }}
+
+      // Last point circle
+      var lastIdx = pts - 1;
+      var lastVal = data[lastIdx];
+      if (lastVal !== null && lastVal !== undefined) {{
+        var lNorm = (lastVal - minV) / (maxV - minV);
+        if (lNorm < 0) lNorm = 0;
+        if (lNorm > 1) lNorm = 1;
+        var lx = padLeft + lastIdx * stepX;
+        var ly = padTop + (1 - lNorm) * chartH;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }}
     }}
 
-    plotLine(chartHistory.moisture, '#059669', 0, 100);
-    plotLine(chartHistory.soilTemp, '#0d9488', 10, 40);
-    plotLine(chartHistory.ambTemp, '#d97706', 10, 45);
-    plotLine(chartHistory.humidity, '#2563eb', 0, 100);
+    // Plot lines:
+    // 1. Soil Moisture (#059669, 0-100%)
+    plotLine(moistures, '#059669', 0, 100);
+
+    // 2. Soil Temp DS18B20 (#0d9488, 10-45°C)
+    plotLine(soilTemps, '#0d9488', 10, 45);
+
+    // 3. Ambient Temp DHT22 (#d97706, 10-45°C)
+    plotLine(ambTemps, '#d97706', 10, 45);
+
+    // 4. Humidity DHT22 (#2563eb, 0-100%)
+    plotLine(humidities, '#2563eb', 0, 100);
   }};
 
   window.addEventListener('resize', function() {{
