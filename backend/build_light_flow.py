@@ -299,7 +299,7 @@ TEMPLATE_HTML = f"""
           <div class="gp-meta-label">Active Plant Species</div>
           <div class="gp-meta-val-row">
             <span class="gp-meta-title">{{{{plant.plant_name || 'Tomato'}}}} <span class="gp-sub-sci" ng-if="plant.scientific_name">({{{{plant.scientific_name}}}})</span></span>
-            <span class="gp-badge gp-badge-emerald">Safe Root Zone: {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
+            <span class="gp-badge gp-badge-emerald gp-badge-prominent">🎯 Safe Root Moisture: {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
           </div>
           <div class="gp-meta-desc">{{{{plant.notes || 'Target botanical parameters autonomously guarded by Gemini AI'}}}}</div>
         </div>
@@ -339,8 +339,8 @@ TEMPLATE_HTML = f"""
       <div class="gp-card gp-card-metric" ng-class="{{'border-alert': hasReceivedTelemetry && sensor.soil_moisture < plant.min_moisture, 'border-optimal': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture}}">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-emerald">{SVG_DROPLET}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture, 'tag-warn': hasReceivedTelemetry && sensor.soil_moisture < plant.min_moisture, 'tag-wait': !hasReceivedTelemetry}}">
-            {{{{hasReceivedTelemetry ? (sensor.soil_moisture >= plant.min_moisture ? 'Optimal Hydration' : 'Water Deficit') : 'Awaiting Data'}}}}
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture, 'tag-warn': hasReceivedTelemetry && (sensor.soil_moisture < plant.min_moisture || sensor.soil_moisture > plant.max_moisture), 'tag-wait': !hasReceivedTelemetry}}">
+            {{{{hasReceivedTelemetry ? (sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture ? 'Optimal Hydration' : (sensor.soil_moisture < plant.min_moisture ? 'Water Deficit' : 'Excess Moisture')) : 'Awaiting Data'}}}}
           </span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.soil_moisture !== null ? (sensor.soil_moisture | number:1) : '--'}}}}<span class="gp-unit">%</span></div>
@@ -348,7 +348,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-emerald" style="width: {{{{hasReceivedTelemetry && sensor.soil_moisture !== null ? sensor.soil_moisture : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Safe Target: {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</div>
+        <div class="gp-safe-range-box gp-safe-moisture">
+          <span class="gp-safe-icon">🎯</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Safe Target for {{{{plant.plant_name || 'Plant'}}}}:</span>
+            <span class="gp-safe-num">{{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
+          </div>
+        </div>
       </div>
 
       <!-- 2. Soil Temperature (DS18B20) -->
@@ -362,7 +368,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-teal" style="width: {{{{hasReceivedTelemetry && sensor.soil_temperature !== null ? ((sensor.soil_temperature / 45) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Root Comfort: 18.0°C – 28.0°C</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">🌱</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Root Comfort Zone:</span>
+            <span class="gp-safe-num">18.0°C – 28.0°C</span>
+          </div>
+        </div>
       </div>
 
       <!-- 3. Ambient Temperature (DHT22) -->
@@ -378,7 +390,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-amber" style="width: {{{{hasReceivedTelemetry && sensor.temperature !== null ? ((sensor.temperature / 45) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Threshold Ceiling: 33.0°C</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">☀️</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Thermal Ceiling Limit:</span>
+            <span class="gp-safe-num">Safe &lt; 33.0°C</span>
+          </div>
+        </div>
       </div>
 
       <!-- 4. Ambient Humidity (DHT22) -->
@@ -392,7 +410,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-blue" style="width: {{{{hasReceivedTelemetry && sensor.humidity !== null ? sensor.humidity : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Normal Transpiration: 40% – 70%</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">💧</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Transpiration Comfort:</span>
+            <span class="gp-safe-num">40% – 70%</span>
+          </div>
+        </div>
       </div>
 
       <!-- 5. Air Quality MQ Sensor -->
@@ -406,7 +430,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-cyan" style="width: {{{{hasReceivedTelemetry && sensor.air_quality_percent !== null ? sensor.air_quality_percent : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Purity Status: Pure & Clean Air</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">🍃</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Air Purity Benchmark:</span>
+            <span class="gp-safe-num">Pure &amp; Clean</span>
+          </div>
+        </div>
       </div>
 
       <!-- 6. Barometric Pressure (BMP280) -->
@@ -420,7 +450,13 @@ TEMPLATE_HTML = f"""
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-purple" style="width: {{{{hasReceivedTelemetry && sensor.air_pressure !== null ? (((sensor.air_pressure - 950) / 100) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Standard Atmosphere: ~1013.25 hPa</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">⏱️</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">Standard MSLP Pressure:</span>
+            <span class="gp-safe-num">~1013.2 hPa</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1187,6 +1223,65 @@ md-toolbar.nr-dashboard-toolbar {{
 .gp-fill-blue {{ background: linear-gradient(90deg, #3b82f6, #2563eb); }}
 .gp-fill-cyan {{ background: linear-gradient(90deg, #06b6d4, #0891b2); }}
 .gp-fill-purple {{ background: linear-gradient(90deg, #8b5cf6, #7c3aed); }}
+.gp-safe-range-box {{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 10px;
+  transition: all 0.2s;
+}}
+.gp-safe-moisture {{
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1.5px solid #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+}}
+.gp-safe-icon {{
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+}}
+.gp-safe-details {{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}}
+.gp-safe-title {{
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}}
+.gp-safe-moisture .gp-safe-title {{
+  color: #047857;
+  font-weight: 800;
+}}
+.gp-safe-num {{
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.2px;
+}}
+.gp-safe-moisture .gp-safe-num {{
+  color: #065f46;
+  font-size: 14.5px;
+  font-weight: 900;
+}}
+.gp-badge-prominent {{
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18) !important;
+}}
 .gp-range-hint {{ font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 8px; }}
 
 /* Intelligence Grid */
