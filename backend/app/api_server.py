@@ -299,11 +299,16 @@ Decision Engine Pre-Assessment:
 - Primary Alert: {eval_result.get('message')}
 """
 
+    lang = req_data.get("lang", "en")
+
     try:
-        advice_text = generate_plant_advice(context)
+        advice_text = generate_plant_advice(context, lang=lang)
     except Exception as e:
         print(f"Gemini API error: {e}")
-        advice_text = f"Health Status: {eval_result.get('status')} ({eval_result.get('message')}). Recommendation: Maintain current care routine."
+        if lang == "si":
+            advice_text = f"සෞඛ්‍ය තත්ත්වය: {eval_result.get('status')} ({eval_result.get('message')}). නිර්දේශය: සාමාන්‍ය නඩත්තු කටයුතු කරගෙන යන්න."
+        else:
+            advice_text = f"Health Status: {eval_result.get('status')} ({eval_result.get('message')}). Recommendation: Maintain current care routine."
 
     return jsonify({
         "success": True,
@@ -311,7 +316,8 @@ Decision Engine Pre-Assessment:
         "weather": weather_info,
         "plant": plant,
         "sensor": sensor,
-        "advice": advice_text
+        "advice": advice_text,
+        "lang": lang
     })
 
 if __name__ == "__main__":
