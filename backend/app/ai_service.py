@@ -142,24 +142,49 @@ Moisture calibration scientific guidelines:
         }
 
 
-def generate_plant_advice(ai_context: str) -> str:
+def generate_plant_advice(ai_context: str, lang: str = "en") -> str:
     """
     Send GreenPulse sensor telemetry and environment context to Gemini AI
     and return an AI-generated clinical botanical explanation.
+    Supports English ('en') and natural, conversational Sinhala ('si').
     """
+    if lang == "si":
+        lang_prompt = """
+භාෂා උපදෙස් (CRITICAL LANGUAGE INSTRUCTION):
+සම්පූර්ණ උපදේශයම ලියන්න ස්වභාවික, සරල, ගෙවතු වගාකරුවෙකුට පහසුවෙන් තේරුම් ගත හැකි ප්‍රායෝගික සිංහල භාෂාවෙන් (Natural, fluent Sri Lankan Sinhala).
+Google Translate වැනි රොබෝ/ගොත පරිවර්තන නොකරන්න. සාමාන්‍ය මිනිසෙකුට තේරෙන සුහද, මගපෙන්වන ශෛලියකින් ලියන්න.
+කෘෂිකාර්මික යෙදුම් (උදා: පසේ තෙතමනය, මුල් කුණුවීම, වාෂ්පීකරණය, වාතාශ්‍රය, ජල කළමනාකරණය) නිවැරදිව භාවිත කරන්න.
+
+පහත මාතෘකා 4 යටතේ පැහැදිලිව පිළිතුර සකස් කරන්න:
+### 1. වත්මන් සෞඛ්‍ය තත්ත්වය සහ පසේ ස්වභාවය
+(පැළයේ දැනට පවතින සෞඛ්‍ය මට්ටම පිළිබඳ පැහැදිලි කෙටි විස්තරයක්)
+
+### 2. සංවේදක දත්ත සහ පාරිසරික විශ්ලේෂණය
+(පසේ තෙතමනය, උෂ්ණත්වය, වායු ආර්ද්‍රතාවය පැළයේ අවශ්‍යතාවලට ගැළපෙන ආකාරය)
+
+### 3. ප්‍රදේශයේ කාලගුණික බලපෑම
+(ඉදිරි පැය 24 කාලගුණය සහ වැසි තත්ත්වය පැළයට බලපාන ආකාරය)
+
+### 4. ඔබ දැන් කළ යුතු දේ (ප්‍රායෝගික උපදෙස්)
+(දැන්ම වතුර දැමිය යුතුද, වැස්ස එනතුරු සිටිය යුතුද, හිරු එළිය/සෙවන සකස් කළ යුතු ආකාරය පිළිබඳ පැහැදිලි උපදෙස්)
+"""
+    else:
+        lang_prompt = """
+Provide a structured, practical, and expert plant-care diagnosis in English.
+Format your response cleanly:
+### 1. Current Condition & Vital Signs: A brief assessment of current health.
+### 2. Soil & Environment Analysis: How current soil moisture, temperature, humidity, and air quality relate to the plant's safe range.
+### 3. Weather Impact: How the city forecast (temperature, impending rain) influences plant care today.
+### 4. Actionable Recommendation: Clear instruction (e.g. whether to water now, wait for rain, adjust sunlight/ventilation).
+"""
+
     prompt = f"""You are the GreenPulse AI plant-care assistant.
 
 Analyze the following plant information and telemetry:
 
 {ai_context}
 
-Provide a structured, practical, and expert plant-care diagnosis.
-
-Format your response cleanly:
-1. Current Condition & Vital Signs: A brief assessment of current health.
-2. Soil & Environment Analysis: How current soil moisture, temperature, humidity, and air quality relate to the plant's safe range.
-3. Weather Impact: How the city forecast (temperature, impending rain) influences plant care today.
-4. Actionable Recommendation: Clear instruction (e.g. whether to water now, wait for rain, adjust sunlight/ventilation).
+{lang_prompt}
 
 Keep it concise, clear, and highly encouraging for the grower.
 """
@@ -174,9 +199,16 @@ Keep it concise, clear, and highly encouraging for the grower.
 
     # Dynamic fallback based on actual sensor readings in context if API is unreachable
     ctx_lower = ai_context.lower()
-    if "underwatered" in ctx_lower or "dry" in ctx_lower or "critical" in ctx_lower:
-        return "⚠️ Alert: Soil moisture is below the safe threshold. Immediate root irrigation is recommended to prevent cellular wilting and heat stress."
-    elif "overwatered" in ctx_lower or "waterlogged" in ctx_lower:
-        return "⚠️ Warning: Soil moisture exceeds safe retention capacity. Halt watering immediately and ensure pot drainage holes are unblocked to prevent root hypoxia."
-    
-    return "Optimal environmental conditions observed. Root hydration and ambient parameters remain within the calibrated botanical thresholds."
+    if lang == "si":
+        if "underwatered" in ctx_lower or "dry" in ctx_lower or "critical" in ctx_lower:
+            return "⚠️ **අවවාදයයි:** පසේ තෙතමනය අවශ්‍ය අවම මට්ටමට වඩා අඩුවී ඇත. පැළය මැලවීම සහ මුල් වියළී යාම වැළැක්වීමට අදම මුල් ප්‍රදේශයට ප්‍රමාණවත් ලෙස ජලය යොදන්න."
+        elif "overwatered" in ctx_lower or "waterlogged" in ctx_lower:
+            return "⚠️ **අවවාදයයි:** පසේ තෙතමනය අවශ්‍ය ප්‍රමාණයට වඩා වැඩියි (ජලයෙන් පිරී ඇත). මුල් කුණුවීම වැළැක්වීම සඳහා දැනට වතුර දැමීම නවත්වන්න. පෝච්චියේ ජලය බැස යන සිදුරු අවහිර වී ඇත්දැයි පරීක්ෂා කරන්න."
+        return "🌱 **හොඳ තත්ත්වයේ පවතී:** පසේ තෙතමනය සහ අවට පරිසරය පැළයේ වර්ධනයට ඉතා යෝග්‍ය මට්ටමක පවතී. සුපුරුදු පරිදි සාමාන්‍ය නඩත්තු කටයුතු කරගෙන යන්න."
+    else:
+        if "underwatered" in ctx_lower or "dry" in ctx_lower or "critical" in ctx_lower:
+            return "⚠️ Alert: Soil moisture is below the safe threshold. Immediate root irrigation is recommended to prevent cellular wilting and heat stress."
+        elif "overwatered" in ctx_lower or "waterlogged" in ctx_lower:
+            return "⚠️ Warning: Soil moisture exceeds safe retention capacity. Halt watering immediately and ensure pot drainage holes are unblocked to prevent root hypoxia."
+        return "Optimal environmental conditions observed. Root hydration and ambient parameters remain within the calibrated botanical thresholds."
+

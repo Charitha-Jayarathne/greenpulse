@@ -39,14 +39,22 @@ TEMPLATE_HTML = f"""
             {SVG_SPROUT}
           </div>
           <div>
-            <div class="gp-title">GreenPulse <span class="gp-accent">IoT Hub</span></div>
-            <div class="gp-subtitle">Botanical Node Pairing & Plant Registration</div>
+            <div class="gp-title">GreenPulse <span class="gp-accent">{{{{t('brand_iot_hub')}}}}</span></div>
+            <div class="gp-subtitle">{{{{t('reg_subtitle')}}}}</div>
           </div>
         </div>
 
-        <div class="gp-pill gp-pill-device">
-          <span class="gp-dot-live pulse-emerald"></span>
-          <span>ESP32 Node: <strong>{{{{activeDeviceId}}}}</strong></span>
+        <div class="gp-header-actions" style="display: flex; align-items: center; gap: 12px;">
+          <!-- Language Toggle Switcher -->
+          <div class="gp-lang-toggle">
+            <button type="button" class="gp-lang-btn" ng-class="{{'lang-active': currentLang === 'en'}}" ng-click="setLanguage('en')">🇬🇧 EN</button>
+            <button type="button" class="gp-lang-btn" ng-class="{{'lang-active': currentLang === 'si'}}" ng-click="setLanguage('si')">🇱🇰 සිංහල</button>
+          </div>
+
+          <div class="gp-pill gp-pill-device">
+            <span class="gp-dot-live pulse-emerald"></span>
+            <span>{{{{t('device_node')}}}} <strong>{{{{activeDeviceId}}}}</strong></span>
+          </div>
         </div>
       </div>
 
@@ -57,7 +65,7 @@ TEMPLATE_HTML = f"""
         <div class="gp-form-section">
           <div class="gp-section-title">
             <span class="gp-step-num">1</span>
-            <span>Identify Plant via Gemini 3.8 Flash AI:</span>
+            <span>{{{{t('step1_title')}}}}</span>
           </div>
           
           <div class="gp-search-box-wrap">
@@ -65,7 +73,7 @@ TEMPLATE_HTML = f"""
               <input type="text" 
                      class="gp-input gp-input-search" 
                      ng-model="plantSearchQuery" 
-                     placeholder="Type plant name or species (e.g. Snake Plant, Karapincha, Tomato, Aloe Vera...)"
+                     placeholder="{{{{t('plant_search_placeholder')}}}}"
                      ng-keydown="$event.keyCode === 13 && ($event.preventDefault(), searchAndIdentifyPlant())">
               <button type="button" 
                       class="gp-btn gp-btn-ai-search" 
@@ -73,21 +81,21 @@ TEMPLATE_HTML = f"""
                       ng-disabled="aiSearching || !plantSearchQuery">
                 <span ng-if="!aiSearching">{SVG_SPARKLES}</span>
                 <span ng-if="aiSearching" class="gp-spin">{SVG_REFRESH}</span>
-                <span>{{{{aiSearching ? 'AI Consulting...' : '✨ AI Identify & Calibrate'}}}}</span>
+                <span>{{{{aiSearching ? t('btn_ai_searching') : t('btn_ai_search')}}}}</span>
               </button>
             </div>
 
             <!-- Quick Suggestions Tags -->
             <div class="gp-quick-search-tags">
-              <span class="gp-quick-label">💡 Botanical Suggestions:</span>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Snake Plant')">🌱 Snake Plant</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Karapincha / Curry Leaves')">🌿 Curry Leaves (Karapincha)</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Tomato')">🍅 Tomato</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Monstera Deliciosa')">🍃 Monstera</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Aloe Vera')">🌵 Aloe Vera</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Chili / Pepper')">🌶️ Chili / Pepper</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Mint')">🌱 Mint</button>
-              <button type="button" class="gp-tag-chip" ng-click="quickSelectPlant('Orchid')">🌸 Orchid</button>
+              <span class="gp-quick-label">{{{{t('botanical_suggestions')}}}}</span>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Snake Plant'}}" ng-click="quickSelectPlant('Snake Plant')">🌱 Snake Plant</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Karapincha / Curry Leaves'}}" ng-click="quickSelectPlant('Karapincha / Curry Leaves')">🌿 Curry Leaves (Karapincha)</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Tomato'}}" ng-click="quickSelectPlant('Tomato')">🍅 Tomato</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Monstera Deliciosa'}}" ng-click="quickSelectPlant('Monstera Deliciosa')">🍃 Monstera</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Aloe Vera'}}" ng-click="quickSelectPlant('Aloe Vera')">🌵 Aloe Vera</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Chili / Pepper'}}" ng-click="quickSelectPlant('Chili / Pepper')">🌶️ Chili / Pepper</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Mint'}}" ng-click="quickSelectPlant('Mint')">🌱 Mint</button>
+              <button type="button" class="gp-tag-chip" ng-class="{{'chip-active': plantSearchQuery === 'Orchid'}}" ng-click="quickSelectPlant('Orchid')">🌸 Orchid</button>
             </div>
           </div>
 
@@ -95,8 +103,17 @@ TEMPLATE_HTML = f"""
           <div class="gp-ai-identifying-banner" ng-if="aiSearching">
             <div class="gp-spin-glow">{SVG_SPARKLES}</div>
             <div>
-              <strong>Gemini 3.8 Flash Botanical Model in progress...</strong>
-              <div class="gp-sub-txt">Consulting taxonomic databases and calculating precise root-zone volumetric moisture boundaries for "{{{{plantSearchQuery}}}}"...</div>
+              <strong>{{{{t('ai_banner_title')}}}}</strong>
+              <div class="gp-sub-txt">{{{{t('ai_banner_desc')}}}}</div>
+            </div>
+          </div>
+
+          <!-- Guidance Prompt (Shown before calibration) -->
+          <div class="gp-ai-pending-banner" ng-if="!aiPlantProfile && !aiSearching">
+            <div class="gp-pending-icon">🌱</div>
+            <div>
+              <strong>{{{{t('pending_banner_title')}}}}</strong>
+              <div class="gp-sub-txt">{{{{t('pending_banner_desc')}}}}</div>
             </div>
           </div>
 
@@ -105,7 +122,7 @@ TEMPLATE_HTML = f"""
             <div class="gp-ai-card-top">
               <div class="gp-ai-plant-header">
                 <div class="gp-verified-row">
-                  <span class="gp-badge-gemini">✨ Gemini AI Botanical Verified</span>
+                  <span class="gp-badge-gemini">{{{{t('gemini_verified')}}}}</span>
                   <span class="gp-ai-category-badge">{{{{aiPlantProfile.category}}}}</span>
                 </div>
                 <div class="gp-ai-plant-title">
@@ -118,21 +135,21 @@ TEMPLATE_HTML = f"""
               <div class="gp-ai-threshold-box">
                 <div class="gp-threshold-label">
                   <span class="gp-lock-icon">🤖</span>
-                  <span>Autonomous Soil Moisture Calibration (AWS IoT Sync):</span>
+                  <span>{{{{t('auto_calibration_title')}}}}</span>
                 </div>
                 <div class="gp-threshold-val-row">
                   <div class="gp-threshold-badge">
                     <span class="gp-tb-num">{{{{aiPlantProfile.min_moisture | number:1}}}}%</span>
-                    <span class="gp-tb-sub">Min Safe Limit (Wilting Stress)</span>
+                    <span class="gp-tb-sub">{{{{t('min_safe_limit')}}}}</span>
                   </div>
                   <div class="gp-threshold-arrow">➔</div>
                   <div class="gp-threshold-badge">
                     <span class="gp-tb-num">{{{{aiPlantProfile.max_moisture | number:1}}}}%</span>
-                    <span class="gp-tb-sub">Max Safe Limit (Root Rot Risk)</span>
+                    <span class="gp-tb-sub">{{{{t('max_safe_limit')}}}}</span>
                   </div>
                 </div>
                 <div class="gp-threshold-note">
-                  ✓ Calculated by Gemini AI based on root-zone transpiration science. Automatically persisted to AWS DynamoDB. No manual adjustment required.
+                  {{{{t('calibration_note')}}}}
                 </div>
               </div>
             </div>
@@ -141,7 +158,7 @@ TEMPLATE_HTML = f"""
               <div class="gp-ai-detail-item">
                 <span class="gp-adi-icon">{SVG_SUN}</span>
                 <div>
-                  <div class="gp-adi-title">Sunlight Requirement</div>
+                  <div class="gp-adi-title">{{{{t('sunlight_req')}}}}</div>
                   <div class="gp-adi-val">{{{{aiPlantProfile.sunlight}}}}</div>
                 </div>
               </div>
@@ -149,14 +166,14 @@ TEMPLATE_HTML = f"""
               <div class="gp-ai-detail-item">
                 <span class="gp-adi-icon">{SVG_DROPLET}</span>
                 <div>
-                  <div class="gp-adi-title">Watering Frequency</div>
+                  <div class="gp-adi-title">{{{{t('watering_freq')}}}}</div>
                   <div class="gp-adi-val">{{{{aiPlantProfile.watering_frequency}}}}</div>
                 </div>
               </div>
             </div>
 
             <div class="gp-ai-summary-box">
-              <div class="gp-summary-label">Botanical Care Profile:</div>
+              <div class="gp-summary-label">{{{{t('care_profile')}}}}</div>
               <p class="gp-summary-text">{{{{aiPlantProfile.botanical_summary}}}}</p>
             </div>
           </div>
@@ -167,7 +184,7 @@ TEMPLATE_HTML = f"""
         <div class="gp-form-section">
           <div class="gp-section-title">
             <span class="gp-step-num">2</span>
-            <span>Microclimate Location & GPS Acquisition:</span>
+            <span>{{{{t('step2_title')}}}}</span>
           </div>
 
           <div class="gp-gps-card">
@@ -182,13 +199,13 @@ TEMPLATE_HTML = f"""
                 </div>
               </div>
               <button type="button" class="gp-btn gp-btn-gps" ng-click="triggerGpsDetection()" ng-disabled="gpsLoading">
-                <span>{{{{gpsLoading ? 'Acquiring GPS Signal...' : '🛰️ Auto-Detect via GPS Module'}}}}</span>
+                <span>{{{{gpsLoading ? t('btn_gps_loading') : t('btn_gps_detect')}}}}</span>
               </button>
             </div>
 
             <!-- Quick City Selector -->
             <div style="margin-top: 14px;">
-              <label class="gp-form-label">Or Select Microclimate Weather Station (Sri Lanka):</label>
+              <label class="gp-form-label">{{{{t('select_city_label')}}}}</label>
               <div class="gp-city-chips">
                 <button type="button" class="gp-chip-sm" 
                         ng-repeat="city in quickCities" 
@@ -204,7 +221,7 @@ TEMPLATE_HTML = f"""
               <div class="gp-wp-city">{SVG_MAPPIN} {{{{weatherPreview.city}}}} Live Forecast:</div>
               <div class="gp-wp-val">{{{{weatherPreview.temp}}}}°C • {{{{weatherPreview.description}}}}</div>
               <div class="gp-wp-rain" ng-class="{{'rain-alert': weatherPreview.rain_expected, 'rain-clear': !weatherPreview.rain_expected}}">
-                {{{{weatherPreview.rain_expected ? '🌧️ Rain expected in next 24h (Irrigation delay advised)' : '☀️ Clear skies expected'}}}}
+                {{{{weatherPreview.rain_expected ? ('🌧️ ' + t('rain_alert')) : ('☀️ ' + t('rain_clear'))}}}}
               </div>
             </div>
           </div>
@@ -214,12 +231,12 @@ TEMPLATE_HTML = f"""
         <div class="gp-form-section">
           <div class="gp-section-title">
             <span class="gp-step-num">3</span>
-            <span>Physical Hardware Verification:</span>
+            <span>{{{{t('step3_title')}}}}</span>
           </div>
           <div class="gp-check-card">
             <label class="gp-checkbox-label">
               <input type="checkbox" ng-model="hardwareConfirmed" required>
-              <span>I confirm that the physical ESP32 soil moisture probe and DS18B20 temperature sensor have been firmly planted into <strong>{{{{aiPlantProfile ? aiPlantProfile.identified_name : regData.plant_name}}}}</strong>'s soil root zone (3–4 inches deep).</span>
+              <span>{{{{t('hardware_confirm_prefix')}}}} <strong>{{{{aiPlantProfile ? aiPlantProfile.identified_name : regData.plant_name}}}}</strong> {{{{t('hardware_confirm_suffix')}}}}</span>
             </label>
           </div>
         </div>
@@ -227,7 +244,7 @@ TEMPLATE_HTML = f"""
         <!-- Submit Button -->
         <div class="gp-reg-actions">
           <button type="submit" class="gp-btn gp-btn-register" ng-disabled="!hardwareConfirmed || !regData.plant_name || isSubmitting || !aiPlantProfile">
-            <span>{{{{isSubmitting ? 'Registering & Syncing with AWS DynamoDB...' : '🌿 Complete AI Registration & Launch Live Monitor'}}}}</span>
+            <span>{{{{isSubmitting ? t('btn_registering') : t('btn_complete_reg')}}}}</span>
           </button>
         </div>
 
@@ -249,32 +266,38 @@ TEMPLATE_HTML = f"""
           {SVG_SPROUT}
         </div>
         <div>
-          <div class="gp-title">GreenPulse <span class="gp-accent">IoT Core</span></div>
-          <div class="gp-subtitle">Autonomous Botanical Intelligence & Plant Care</div>
+          <div class="gp-title">GreenPulse <span class="gp-accent">{{{{t('brand_iot_core')}}}}</span></div>
+          <div class="gp-subtitle">{{{{t('dash_subtitle')}}}}</div>
         </div>
       </div>
 
       <div class="gp-header-center">
         <div class="gp-pill gp-pill-device">
           <span class="gp-dot-live" ng-class="{{'pulse-emerald': hasReceivedTelemetry, 'dot-waiting': !hasReceivedTelemetry}}"></span>
-          <span>ESP32: <strong>{{{{activeDeviceId}}}}</strong></span>
+          <span>{{{{t('device_node')}}}} <strong>{{{{activeDeviceId}}}}</strong></span>
         </div>
         <div class="gp-pill" ng-class="{{'gp-pill-aws': hasReceivedTelemetry, 'gp-pill-device': !hasReceivedTelemetry}}">
           <span class="gp-dot-live" ng-class="{{'pulse-emerald': hasReceivedTelemetry, 'dot-waiting': !hasReceivedTelemetry}}"></span>
-          <span>{{{{hasReceivedTelemetry ? 'AWS IoT Core (Port 8883) CONNECTED' : 'Waiting for ESP32 Live Stream'}}}}</span>
+          <span>{{{{hasReceivedTelemetry ? t('aws_connected') : t('aws_waiting')}}}}</span>
         </div>
       </div>
 
       <div class="gp-header-actions">
         <div class="gp-clock">
           <div class="gp-clock-time">{{{{currentTime}}}}</div>
-          <div class="gp-clock-zone">Sri Lanka Standard Time</div>
+          <div class="gp-clock-zone">{{{{t('sl_time_zone')}}}}</div>
+        </div>
+
+        <!-- Language Toggle Switcher -->
+        <div class="gp-lang-toggle">
+          <button type="button" class="gp-lang-btn" ng-class="{{'lang-active': currentLang === 'en'}}" ng-click="setLanguage('en')">🇬🇧 EN</button>
+          <button type="button" class="gp-lang-btn" ng-class="{{'lang-active': currentLang === 'si'}}" ng-click="setLanguage('si')">🇱🇰 සිංහල</button>
         </div>
 
         <!-- Prominent Plant Switch / Relocation Button -->
         <button class="gp-btn gp-btn-switch-plant" ng-click="openRelocationModal()">
           {SVG_SHUFFLE}
-          <span>Switch Plant / Move Device</span>
+          <span>{{{{t('btn_switch_plant')}}}}</span>
         </button>
       </div>
     </header>
@@ -287,16 +310,16 @@ TEMPLATE_HTML = f"""
           {SVG_SPROUT}
         </div>
         <div class="gp-meta-info">
-          <div class="gp-meta-label">Active Plant Species</div>
+          <div class="gp-meta-label">{{{{t('active_plant_label')}}}}</div>
           <div class="gp-meta-val-row">
             <span class="gp-meta-title">{{{{plant.plant_name || 'Tomato'}}}} <span class="gp-sub-sci" ng-if="plant.scientific_name">({{{{plant.scientific_name}}}})</span></span>
-            <span class="gp-badge gp-badge-emerald">Safe Root Zone: {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
+            <span class="gp-badge gp-badge-emerald gp-badge-prominent">{{{{t('safe_root_moisture')}}}} {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
           </div>
           <div class="gp-meta-desc">{{{{plant.notes || 'Target botanical parameters autonomously guarded by Gemini AI'}}}}</div>
         </div>
         <button class="gp-btn-switch" ng-click="openRelocationModal()">
           {SVG_SHUFFLE}
-          <span>Move Device</span>
+          <span>{{{{t('btn_move_device')}}}}</span>
         </button>
       </div>
 
@@ -307,19 +330,19 @@ TEMPLATE_HTML = f"""
           <span ng-if="!weather.rain_expected">{SVG_SUN}</span>
         </div>
         <div class="gp-meta-info">
-          <div class="gp-meta-label">Live City Microclimate ({SVG_MAPPIN} {{{{weather.city || plant.location_name || 'Colombo'}}}})</div>
+          <div class="gp-meta-label">{{{{t('live_weather_label')}}}} ({SVG_MAPPIN} {{{{weather.city || plant.location_name || 'Colombo'}}}})</div>
           <div class="gp-meta-val-row">
             <span class="gp-meta-title">{{{{weather.temp || 26.9}}}} °C</span>
-            <span class="gp-weather-cond">{{{{weather.description || 'Scattered Clouds'}}}} • {{{{weather.humidity || 85}}}}% Air Humidity</span>
+            <span class="gp-weather-cond">{{{{weather.description || 'Scattered Clouds'}}}} • {{{{weather.humidity || 85}}}}% {{{{t('air_humidity')}}}}</span>
           </div>
           <div class="gp-rain-status" ng-class="{{'rain-alert': weather.rain_expected, 'rain-clear': !weather.rain_expected}}">
-            <span ng-if="weather.rain_expected">{SVG_RAIN} Rain Expected within 24h — Automated Irrigation Delay Advised</span>
-            <span ng-if="!weather.rain_expected">{SVG_SUN} Clear Weather Forecast — Regular Irrigation Schedule Active</span>
+            <span ng-if="weather.rain_expected">{SVG_RAIN} {{{{t('rain_alert')}}}}</span>
+            <span ng-if="!weather.rain_expected">{SVG_SUN} {{{{t('rain_clear')}}}}</span>
           </div>
         </div>
         <button class="gp-btn-switch" ng-click="refreshWeather()">
           {SVG_REFRESH}
-          <span>Refresh</span>
+          <span>{{{{t('btn_refresh')}}}}</span>
         </button>
       </div>
     </section>
@@ -330,30 +353,42 @@ TEMPLATE_HTML = f"""
       <div class="gp-card gp-card-metric" ng-class="{{'border-alert': hasReceivedTelemetry && sensor.soil_moisture < plant.min_moisture, 'border-optimal': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture}}">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-emerald">{SVG_DROPLET}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture, 'tag-warn': hasReceivedTelemetry && sensor.soil_moisture < plant.min_moisture, 'tag-wait': !hasReceivedTelemetry}}">
-            {{{{hasReceivedTelemetry ? (sensor.soil_moisture >= plant.min_moisture ? 'Optimal Hydration' : 'Water Deficit') : 'Awaiting Data'}}}}
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry && sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture, 'tag-warn': hasReceivedTelemetry && (sensor.soil_moisture < plant.min_moisture || sensor.soil_moisture > plant.max_moisture), 'tag-wait': !hasReceivedTelemetry}}">
+            {{{{hasReceivedTelemetry ? (sensor.soil_moisture >= plant.min_moisture && sensor.soil_moisture <= plant.max_moisture ? t('optimal_hydration') : (sensor.soil_moisture < plant.min_moisture ? t('water_deficit') : t('excess_moisture'))) : t('awaiting_data')}}}}
           </span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.soil_moisture !== null ? (sensor.soil_moisture | number:1) : '--'}}}}<span class="gp-unit">%</span></div>
-        <div class="gp-metric-name">Soil Moisture (Root Level)</div>
+        <div class="gp-metric-name">{{{{t('soil_moisture_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-emerald" style="width: {{{{hasReceivedTelemetry && sensor.soil_moisture !== null ? sensor.soil_moisture : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Safe Target: {{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</div>
+        <div class="gp-safe-range-box gp-safe-moisture">
+          <span class="gp-safe-icon">🎯</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('safe_target_for')}}}} {{{{plant.plant_name || 'Plant'}}}}:</span>
+            <span class="gp-safe-num">{{{{plant.min_moisture}}}}% – {{{{plant.max_moisture}}}}%</span>
+          </div>
+        </div>
       </div>
 
       <!-- 2. Soil Temperature (DS18B20) -->
       <div class="gp-card gp-card-metric">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-teal">{SVG_PROBE}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? 'Sub-surface Probe' : 'Awaiting Data'}}}}</span>
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? t('subsurface_probe') : t('awaiting_data')}}}}</span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.soil_temperature !== null ? (sensor.soil_temperature | number:1) : '--'}}}}<span class="gp-unit">°C</span></div>
-        <div class="gp-metric-name">Soil Temperature (DS18B20)</div>
+        <div class="gp-metric-name">{{{{t('soil_temp_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-teal" style="width: {{{{hasReceivedTelemetry && sensor.soil_temperature !== null ? ((sensor.soil_temperature / 45) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Root Comfort: 18.0°C – 28.0°C</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">🌱</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('root_comfort_zone')}}}}</span>
+            <span class="gp-safe-num">18.0°C – 28.0°C</span>
+          </div>
+        </div>
       </div>
 
       <!-- 3. Ambient Temperature (DHT22) -->
@@ -361,57 +396,205 @@ TEMPLATE_HTML = f"""
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-amber">{SVG_THERMO}</span>
           <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry && sensor.temperature <= 32, 'tag-warn': hasReceivedTelemetry && sensor.temperature > 32, 'tag-wait': !hasReceivedTelemetry}}">
-            {{{{hasReceivedTelemetry ? (sensor.temperature <= 32 ? 'Optimal Thermal' : 'Heat Warning') : 'Awaiting Data'}}}}
+            {{{{hasReceivedTelemetry ? (sensor.temperature <= 32 ? t('optimal_thermal') : t('heat_warning')) : t('awaiting_data')}}}}
           </span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.temperature !== null ? (sensor.temperature | number:1) : '--'}}}}<span class="gp-unit">°C</span></div>
-        <div class="gp-metric-name">Ambient Temperature (DHT22)</div>
+        <div class="gp-metric-name">{{{{t('amb_temp_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-amber" style="width: {{{{hasReceivedTelemetry && sensor.temperature !== null ? ((sensor.temperature / 45) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Threshold Ceiling: 33.0°C</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">☀️</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('thermal_ceiling')}}}}</span>
+            <span class="gp-safe-num">{{{{t('safe_under')}}}} 33.0°C</span>
+          </div>
+        </div>
       </div>
 
       <!-- 4. Ambient Humidity (DHT22) -->
       <div class="gp-card gp-card-metric">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-blue">{SVG_CLOUD}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? 'Air Moisture' : 'Awaiting Data'}}}}</span>
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? t('air_moisture') : t('awaiting_data')}}}}</span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.humidity !== null ? (sensor.humidity | number:1) : '--'}}}}<span class="gp-unit">%</span></div>
-        <div class="gp-metric-name">Relative Humidity (DHT22)</div>
+        <div class="gp-metric-name">{{{{t('amb_humidity_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-blue" style="width: {{{{hasReceivedTelemetry && sensor.humidity !== null ? sensor.humidity : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Normal Transpiration: 40% – 70%</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">💧</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('transpiration_comfort')}}}}</span>
+            <span class="gp-safe-num">40% – 70%</span>
+          </div>
+        </div>
       </div>
 
       <!-- 5. Air Quality MQ Sensor -->
       <div class="gp-card gp-card-metric">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-cyan">{SVG_WIND}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? 'Gas & Purity' : 'Awaiting Data'}}}}</span>
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? t('gas_purity') : t('awaiting_data')}}}}</span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.air_quality_percent !== null ? (sensor.air_quality_percent | number:0) : '--'}}}}<span class="gp-unit">%</span></div>
-        <div class="gp-metric-name">Air Quality Level (MQ)</div>
+        <div class="gp-metric-name">{{{{t('air_quality_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-cyan" style="width: {{{{hasReceivedTelemetry && sensor.air_quality_percent !== null ? sensor.air_quality_percent : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Purity Status: Pure & Clean Air</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">🍃</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('air_purity_bench')}}}}</span>
+            <span class="gp-safe-num">{{{{t('pure_clean')}}}}</span>
+          </div>
+        </div>
       </div>
 
       <!-- 6. Barometric Pressure (BMP280) -->
       <div class="gp-card gp-card-metric">
         <div class="gp-card-header">
           <span class="gp-card-icon gp-icon-purple">{SVG_GAUGE}</span>
-          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? 'BMP280 I2C' : 'Awaiting Data'}}}}</span>
+          <span class="gp-card-tag" ng-class="{{'tag-opt': hasReceivedTelemetry, 'tag-wait': !hasReceivedTelemetry}}">{{{{hasReceivedTelemetry ? t('bmp_pressure') : t('awaiting_data')}}}}</span>
         </div>
         <div class="gp-metric-val">{{{{hasReceivedTelemetry && sensor.air_pressure !== null ? (sensor.air_pressure | number:1) : '--'}}}}<span class="gp-unit">hPa</span></div>
-        <div class="gp-metric-name">Barometric Pressure</div>
+        <div class="gp-metric-name">{{{{t('air_pressure_name')}}}}</div>
         <div class="gp-bar-track">
           <div class="gp-bar-fill gp-fill-purple" style="width: {{{{hasReceivedTelemetry && sensor.air_pressure !== null ? (((sensor.air_pressure - 950) / 100) * 100) : 0}}}}%;"></div>
         </div>
-        <div class="gp-range-hint">Standard Atmosphere: ~1013.25 hPa</div>
+        <div class="gp-safe-range-box">
+          <span class="gp-safe-icon">⏱️</span>
+          <div class="gp-safe-details">
+            <span class="gp-safe-title">{{{{t('mslp_standard')}}}}</span>
+            <span class="gp-safe-num">~1013.2 hPa</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7-DAY AI PREDICTIVE BOTANICAL SOIL DRYING & EVAPORATION INTELLIGENCE -->
+    <section class="gp-prediction-banner-section">
+      <div class="gp-card gp-detailed-prediction-card">
+        
+        <!-- Header Row -->
+        <div class="gp-dp-header">
+          <div class="gp-dp-header-left">
+            <span class="gp-icon-prediction-hero">
+              {SVG_SPARKLES}
+            </span>
+            <div>
+              <div class="gp-dp-title-row">
+                <span class="gp-dp-title">{{{{t('pred_hero_title')}}}}</span>
+                <span class="gp-badge" ng-class="{{'gp-badge-emerald': prediction.status === 'SAFE', 'gp-badge-warn': prediction.status === 'DEFICIT'}}">
+                  {{{{prediction.status === 'SAFE' ? t('reserve_secure') : t('deficit_alert')}}}}
+                </span>
+              </div>
+              <div class="gp-dp-subtitle">
+                {{{{t('pred_hero_sub')}}}}
+              </div>
+            </div>
+          </div>
+
+          <div class="gp-dp-header-actions">
+            <button type="button" class="gp-btn-sync-pred" ng-click="fetch7DayPrediction()" title="Re-calculate 7-Day Soil Prediction Model">
+              {SVG_REFRESH}
+              <span>{{{{t('pred_reanalyze_btn')}}}}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Column Detailed Analytics Grid -->
+        <div class="gp-dp-grid">
+
+          <!-- Col 1: Water Reserve Countdown Hero Box -->
+          <div class="gp-dp-col gp-dp-col-countdown">
+            <div class="gp-dp-box-label">{{{{t('hydration_reserve_title')}}}}</div>
+            <div class="gp-dp-countdown-row">
+              <span class="gp-dp-num">{{{{hasReceivedTelemetry ? (prediction.headline_val || '--') : '--'}}}}</span>
+              <span class="gp-dp-unit">{{{{prediction.headline_unit || t('days_reserve')}}}}</span>
+            </div>
+            <div class="gp-dp-sub-caption">
+              {{{{prediction.countdown_subtext || ('Until root soil moisture hits safe minimum limit (' + plant.min_moisture + '%)')}}}}
+            </div>
+
+            <!-- Visual Dual-Tier Depletion Progress -->
+            <div class="gp-dp-track-wrap">
+              <div class="gp-dp-track-labels">
+                <span>Critical (0%)</span>
+                <span>Safe Min ({{{{plant.min_moisture}}}}%)</span>
+                <span>Optimal ({{{{plant.max_moisture}}}}%)</span>
+              </div>
+              <div class="gp-bar-track gp-dp-bar-track">
+                <div class="gp-bar-fill" ng-class="{{'gp-fill-emerald': prediction.status === 'SAFE', 'gp-fill-amber': prediction.status === 'DEFICIT'}}" style="width: {{{{hasReceivedTelemetry ? (prediction.bar_pct || 65) : 0}}}}%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 2: 7-Day Evaporation & Telemetry Dynamics -->
+          <div class="gp-dp-col gp-dp-col-dynamics">
+            <div class="gp-dp-box-label">{{{{t('depletion_pace_title')}}}}</div>
+            <div class="gp-dp-metrics-list">
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">📉</div>
+                <div>
+                  <div class="gp-dp-mi-title">{{{{t('seven_day_pace')}}}}</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.drying_trend || prediction.trend_text || 'Analyzing...'}}}}</div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">⚡</div>
+                <div>
+                  <div class="gp-dp-mi-title">{{{{t('hourly_evaporation')}}}}</div>
+                  <div class="gp-dp-mi-val">~{{{{prediction.loss_rate_per_hour || '0.55'}}}}% {{{{t('per_hour_loss')}}}}</div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">🌡️</div>
+                <div>
+                  <div class="gp-dp-mi-title">{{{{t('root_microclimate_mean')}}}}</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.avg_temp || 25.0}}}}°C <span class="gp-dp-mi-sub">({{{{t('peak_temp')}}}} {{{{historyStats.max_temp || 26.3}}}}°C)</span></div>
+                </div>
+              </div>
+
+              <div class="gp-dp-metric-item">
+                <div class="gp-dp-mi-icon">☁️</div>
+                <div>
+                  <div class="gp-dp-mi-title">{{{{t('dynamodb_depth')}}}}</div>
+                  <div class="gp-dp-mi-val">{{{{historyStats.total_records_analyzed || 500}}}} {{{{t('readings_analyzed')}}}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 3: Actionable Agronomic Irrigation Guidance -->
+          <div class="gp-dp-col gp-dp-col-advisory">
+            <div class="gp-dp-box-label">{{{{t('agronomic_action_title')}}}}</div>
+
+            <!-- Weather Synergy Chip -->
+            <div class="gp-dp-weather-chip" ng-class="{{'dp-rain-synergy': weather.rain_expected, 'dp-clear-synergy': !weather.rain_expected}}">
+              <span class="dp-wc-icon">{{{{weather.rain_expected ? '🌧️' : '☀️'}}}}</span>
+              <div class="dp-wc-text">
+                <strong>{{{{weather.rain_expected ? t('rain_synergy_title') : t('clear_synergy_title')}}}}</strong>
+                <span>{{{{weather.rain_expected ? t('rain_synergy_body') : t('clear_synergy_body')}}}}</span>
+              </div>
+            </div>
+
+            <!-- Actionable Guidance Box -->
+            <div class="gp-dp-guidance-box">
+              <div class="gp-dp-gb-title">💡 {{{{t('actionable_rec_for')}}}} {{{{plant.plant_name || 'Plant'}}}}:</div>
+              <p class="gp-dp-gb-body">{{{{prediction.advisory_text}}}}</p>
+              <div class="gp-dp-gb-tip">
+                🕒 <strong>{{{{t('optimal_timing_title')}}}}</strong> {{{{t('optimal_timing_text')}}}}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
@@ -425,20 +608,43 @@ TEMPLATE_HTML = f"""
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </span>
             <div>
-              <div class="gp-intel-title">Multi-Sensor Telemetry Trends</div>
-              <div class="gp-intel-sub">Live 60-Second Real-time Sensor Stream for {{{{plant.plant_name}}}}</div>
+              <div class="gp-intel-title">{{{{t('chart_title')}}}}</div>
+              <div class="gp-intel-sub">{{{{chartSubtitle || ('Live 60-Second Real-time Sensor Stream for ' + (plant.plant_name || 'Plant'))}}}}</div>
             </div>
           </div>
 
+          <!-- Time Range Dropdown Selector -->
+          <div class="gp-chart-controls">
+            <label class="gp-select-label">{{{{t('range_label')}}}}</label>
+            <select class="gp-chart-select" ng-model="selectedTimeRange" ng-change="onRangeChange()">
+              <option value="live">{{{{t('range_live')}}}}</option>
+              <option value="24h">{{{{t('range_24h')}}}}</option>
+              <option value="7d">{{{{t('range_7d')}}}}</option>
+              <option value="30d">{{{{t('range_30d')}}}}</option>
+            </select>
+          </div>
+
           <div class="gp-chart-legend">
-            <span class="gp-legend-item"><span class="dot-emerald"></span> Moisture</span>
-            <span class="gp-legend-item"><span class="dot-teal"></span> Soil T</span>
-            <span class="gp-legend-item"><span class="dot-amber"></span> Amb T</span>
-            <span class="gp-legend-item"><span class="dot-blue"></span> Humidity</span>
+            <span class="gp-legend-item"><span class="dot-emerald"></span> {{{{t('legend_moisture')}}}}</span>
+            <span class="gp-legend-item"><span class="dot-teal"></span> {{{{t('legend_soil_t')}}}}</span>
+            <span class="gp-legend-item"><span class="dot-amber"></span> {{{{t('legend_amb_t')}}}}</span>
+            <span class="gp-legend-item"><span class="dot-blue"></span> {{{{t('legend_humidity')}}}}</span>
           </div>
         </div>
 
+        <!-- Historical Stats Summary Bar (shown when not in live mode) -->
+        <div class="gp-chart-hist-bar" ng-if="selectedTimeRange !== 'live'">
+          <span>💧 <strong>{{{{t('avg_moisture')}}}}</strong> {{{{historyStats.avg_moisture !== undefined ? historyStats.avg_moisture : '--'}}}}%</span>
+          <span>📈 <strong>{{{{t('drying_pace')}}}}</strong> {{{{historyStats.drying_trend || 'Analyzing...'}}}}</span>
+          <span>🌡️ <strong>{{{{t('peak_temp_label')}}}}</strong> {{{{historyStats.max_temp !== undefined ? historyStats.max_temp : '--'}}}}°C</span>
+          <span>☁️ <strong>{{{{t('records_label')}}}}</strong> {{{{historyStats.total_records_analyzed || historyData.length || 0}}}} DynamoDB records</span>
+        </div>
+
         <div class="gp-chart-canvas-wrap">
+          <div ng-if="chartLoading" class="gp-chart-loading-overlay">
+            <div class="gp-spin">{SVG_REFRESH}</div>
+            <span>Fetching {{{{selectedTimeRangeLabel}}}} Telemetry from AWS DynamoDB...</span>
+          </div>
           <canvas id="gpTelemetryChart" height="260"></canvas>
         </div>
       </div>
@@ -449,15 +655,15 @@ TEMPLATE_HTML = f"""
           <div class="gp-intel-title-row">
             <span class="gp-intel-icon gp-icon-sparkle">{SVG_SPARKLES}</span>
             <div>
-              <div class="gp-intel-title">Gemini 3.8 Flash Plant Doctor</div>
-              <div class="gp-intel-sub">Synthesizing Sensors + {{{{plant.plant_name}}}} + {{{{weather.city}}}} Weather</div>
+              <div class="gp-intel-title">{{{{t('ai_doctor_title')}}}}</div>
+              <div class="gp-intel-sub">{{{{t('ai_doctor_sub')}}}}</div>
             </div>
           </div>
 
           <button class="gp-btn gp-btn-ai-run" ng-click="runAiDiagnosis()" ng-disabled="aiLoading || !hasReceivedTelemetry">
             <span ng-if="!aiLoading">{SVG_SPARKLES}</span>
             <span ng-if="aiLoading" class="gp-spin">{SVG_REFRESH}</span>
-            <span>{{{{aiLoading ? 'Consulting Gemini AI...' : 'Run Gemini AI Diagnosis'}}}}</span>
+            <span>{{{{aiLoading ? t('btn_ai_doctor_consulting') : t('btn_ai_doctor_run')}}}}</span>
           </button>
         </div>
 
@@ -465,16 +671,16 @@ TEMPLATE_HTML = f"""
         <div class="gp-ai-content">
           <div ng-if="aiLoading" class="gp-ai-loading-box">
             <div class="gp-pulse-ring"></div>
-            <div class="gp-loading-text">Synthesizing real-time telemetry, soil moisture, and {{{{weather.city}}}} forecast with Gemini 3.8 Flash...</div>
+            <div class="gp-loading-text">{{{{t('ai_analyzing_text')}}}}</div>
           </div>
 
           <div ng-if="!aiLoading" class="gp-ai-markdown" ng-bind-html="aiAdviceHtml"></div>
         </div>
 
         <div class="gp-ai-footer">
-          <span>Model: Google Gemini 3.8 Flash</span>
-          <span>Decision Engine: Synchronized</span>
-          <span>Physical Telemetry: {{{{hasReceivedTelemetry ? 'Live Stream' : 'Awaiting ESP32'}}}}</span>
+          <span>{{{{t('ai_footer_model')}}}}</span>
+          <span>{{{{t('ai_footer_engine')}}}}</span>
+          <span>{{{{t('ai_footer_telemetry')}}}}</span>
         </div>
       </div>
     </section>
@@ -491,48 +697,48 @@ TEMPLATE_HTML = f"""
       <div class="gp-modal-header gp-modal-header-warn">
         <div class="gp-modal-title-row">
           <span class="gp-icon-amber">{SVG_ALERT}</span>
-          <h3>Physical Hardware Sensor Relocation Protocol</h3>
+          <h3>{{{{t('modal_title')}}}}</h3>
         </div>
         <button class="gp-modal-close" ng-click="closeRelocationModal()">✕</button>
       </div>
 
       <div class="gp-modal-body">
         <div class="gp-warn-banner">
-          <strong>CRITICAL HARDWARE STEP REQUIRED BEFORE REGISTERING NEW PLANT:</strong>
-          <p>You are about to switch monitoring from <strong>{{{{plant.plant_name}}}}</strong> to a new plant. You MUST physically move your ESP32 sensors to ensure accurate telemetry and prevent false AI care diagnoses.</p>
+          <strong>{{{{t('modal_warn_title')}}}}</strong>
+          <p>{{{{t('modal_warn_body')}}}}</p>
         </div>
 
         <div class="gp-relocate-steps">
           <div class="gp-r-step">
             <div class="gp-r-num">1</div>
-            <div><strong>Extract Sensor Probes:</strong> Gently withdraw the capacitive soil moisture sensor and DS18B20 stainless steel probe from the current ({{{{plant.plant_name}}}}) pot.</div>
+            <div><strong>{{{{t('r_step1_title')}}}}</strong> {{{{t('r_step1_desc')}}}}</div>
           </div>
           <div class="gp-r-step">
             <div class="gp-r-num">2</div>
-            <div><strong>Clean the Probes:</strong> Wipe probe tips dry with clean tissue to remove mineral buildup and cross-contaminating root microbes.</div>
+            <div><strong>{{{{t('r_step2_title')}}}}</strong> {{{{t('r_step2_desc')}}}}</div>
           </div>
           <div class="gp-r-step">
             <div class="gp-r-num">3</div>
-            <div><strong>Insert in New Target Plant:</strong> Push both probes 3 to 4 inches deep into the soil of your new target plant near the root zone.</div>
+            <div><strong>{{{{t('r_step3_title')}}}}</strong> {{{{t('r_step3_desc')}}}}</div>
           </div>
           <div class="gp-r-step">
             <div class="gp-r-num">4</div>
-            <div><strong>Verify ESP32 Power:</strong> Confirm the ESP32 board is securely powered and Wi-Fi indicator stays on.</div>
+            <div><strong>{{{{t('r_step4_title')}}}}</strong> {{{{t('r_step4_desc')}}}}</div>
           </div>
         </div>
 
         <div class="gp-check-card" style="margin-top: 20px;">
           <label class="gp-checkbox-label">
             <input type="checkbox" ng-model="relocationConfirmed">
-            <span><strong>I confirm that I have physically relocated and planted the ESP32 probes into the new plant's soil.</strong></span>
+            <span><strong>{{{{t('modal_confirm_label')}}}}</strong></span>
           </label>
         </div>
       </div>
 
       <div class="gp-modal-footer">
-        <button type="button" class="gp-btn gp-btn-secondary" ng-click="closeRelocationModal()">Cancel (Keep Monitoring {{{{plant.plant_name}}}})</button>
+        <button type="button" class="gp-btn gp-btn-secondary" ng-click="closeRelocationModal()">{{{{t('modal_cancel_btn')}}}}</button>
         <button type="button" class="gp-btn gp-btn-danger" ng-disabled="!relocationConfirmed" ng-click="confirmRelocationAndRegister()">
-          <span>Proceed to Register New Plant ➔</span>
+          <span>{{{{t('modal_proceed_btn')}}}}</span>
         </button>
       </div>
 
@@ -692,10 +898,28 @@ md-toolbar.nr-dashboard-toolbar {{
   cursor: pointer;
   transition: all 0.2s;
 }}
-.gp-tag-chip:hover {{
+.gp-tag-chip:hover, .gp-tag-chip.chip-active {{
   border-color: #10b981;
   color: #059669;
   background: #ecfdf5;
+}}
+.gp-tag-chip.chip-active {{
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  font-weight: 700;
+}}
+.gp-ai-pending-banner {{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  color: #475569;
+}}
+.gp-pending-icon {{
+  font-size: 24px;
 }}
 .gp-ai-identifying-banner {{
   display: flex;
@@ -1034,10 +1258,44 @@ md-toolbar.nr-dashboard-toolbar {{
   100% {{ transform: scale(0.9); opacity: 0.8; }}
 }}
 
-.gp-header-actions {{ display: flex; align-items: center; gap: 20px; }}
+.gp-header-actions {{ display: flex; align-items: center; gap: 16px; }}
 .gp-clock {{ text-align: right; }}
 .gp-clock-time {{ font-size: 16px; font-weight: 700; color: #0f172a; }}
 .gp-clock-zone {{ font-size: 11px; color: #64748b; }}
+
+/* Language Switcher Toggle */
+.gp-lang-toggle {{
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 3px;
+  gap: 3px;
+}}
+.gp-lang-btn {{
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}}
+.gp-lang-btn:hover {{
+  color: #0f172a;
+}}
+.gp-lang-btn.lang-active {{
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+}}
 
 .gp-btn {{
   display: inline-flex;
@@ -1119,11 +1377,11 @@ md-toolbar.nr-dashboard-toolbar {{
 }}
 .gp-btn-switch:hover {{ background: #059669; color: #ffffff; border-color: #059669; }}
 
-/* 6 Sensors Grid */
+/* 6 Physical Sensors Grid */
 .gp-sensors-grid {{
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 24px;
 }}
 @media (max-width: 1400px) {{ .gp-sensors-grid {{ grid-template-columns: repeat(3, 1fr); }} }}
@@ -1131,6 +1389,9 @@ md-toolbar.nr-dashboard-toolbar {{
   .gp-sensors-grid {{ grid-template-columns: repeat(2, 1fr); }}
   .gp-meta-grid {{ grid-template-columns: 1fr; }}
   .gp-header {{ flex-direction: column; gap: 16px; align-items: flex-start; }}
+}}
+@media (max-width: 480px) {{
+  .gp-sensors-grid {{ grid-template-columns: 1fr; }}
 }}
 .gp-card {{
   background: #ffffff;
@@ -1160,6 +1421,286 @@ md-toolbar.nr-dashboard-toolbar {{
 .gp-fill-blue {{ background: linear-gradient(90deg, #3b82f6, #2563eb); }}
 .gp-fill-cyan {{ background: linear-gradient(90deg, #06b6d4, #0891b2); }}
 .gp-fill-purple {{ background: linear-gradient(90deg, #8b5cf6, #7c3aed); }}
+
+/* Detailed 7-Day Prediction Hero Card */
+.gp-prediction-banner-section {{
+  margin-bottom: 24px;
+}}
+.gp-detailed-prediction-card {{
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-left: 6px solid #0891b2;
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 6px 24px rgba(8, 145, 178, 0.08);
+  transition: box-shadow 0.2s ease;
+}}
+.gp-detailed-prediction-card:hover {{
+  box-shadow: 0 10px 32px rgba(8, 145, 178, 0.12);
+}}
+.gp-dp-header {{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 14px;
+}}
+.gp-dp-header-left {{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}}
+.gp-icon-prediction-hero {{
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+  color: #0891b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+}}
+.gp-dp-title-row {{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}}
+.gp-dp-title {{
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}}
+.gp-badge-warn {{
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}}
+.gp-dp-subtitle {{
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}}
+.gp-btn-sync-pred {{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  cursor: pointer;
+  transition: all 0.2s;
+}}
+.gp-btn-sync-pred:hover {{
+  background: #0d9488;
+  color: #ffffff;
+  border-color: #0d9488;
+}}
+.gp-dp-grid {{
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1.25fr;
+  gap: 20px;
+}}
+@media (max-width: 1250px) {{
+  .gp-dp-grid {{ grid-template-columns: 1fr 1fr; }}
+}}
+@media (max-width: 768px) {{
+  .gp-dp-grid {{ grid-template-columns: 1fr; }}
+}}
+.gp-dp-col {{
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}}
+.gp-dp-box-label {{
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}}
+.gp-dp-countdown-row {{
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}}
+.gp-dp-num {{
+  font-size: 42px;
+  font-weight: 900;
+  color: #0891b2;
+  line-height: 1;
+  letter-spacing: -1px;
+}}
+.gp-dp-unit {{
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+}}
+.gp-dp-sub-caption {{
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 8px;
+  line-height: 1.4;
+}}
+.gp-dp-track-wrap {{
+  margin-top: auto;
+  padding-top: 14px;
+}}
+.gp-dp-track-labels {{
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 6px;
+}}
+.gp-dp-bar-track {{
+  height: 9px;
+  background: #e2e8f0;
+}}
+.gp-dp-metrics-list {{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}}
+.gp-dp-metric-item {{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 9px 12px;
+}}
+.gp-dp-mi-icon {{
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}}
+.gp-dp-mi-title {{
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}}
+.gp-dp-mi-val {{
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}}
+.gp-dp-mi-sub {{
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}}
+.gp-dp-weather-chip {{
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}}
+.dp-rain-synergy {{
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  color: #0e7490;
+}}
+.dp-clear-synergy {{
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+}}
+.dp-wc-icon {{
+  font-size: 16px;
+  line-height: 1;
+  margin-top: 1px;
+}}
+.gp-dp-guidance-box {{
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: auto;
+}}
+.gp-dp-gb-title {{
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}}
+.gp-dp-gb-body {{
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}}
+.gp-dp-gb-tip {{
+  font-size: 11px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.4;
+}}
+.gp-safe-icon {{
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+}}
+.gp-safe-details {{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}}
+.gp-safe-title {{
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}}
+.gp-safe-moisture .gp-safe-title {{
+  color: #047857;
+  font-weight: 800;
+}}
+.gp-safe-num {{
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.2px;
+}}
+.gp-safe-moisture .gp-safe-num {{
+  color: #065f46;
+  font-size: 14.5px;
+  font-weight: 900;
+}}
+.gp-badge-prominent {{
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18) !important;
+}}
 .gp-range-hint {{ font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 8px; }}
 
 /* Intelligence Grid */
@@ -1196,15 +1737,74 @@ md-toolbar.nr-dashboard-toolbar {{
 
 /* Canvas Chart */
 .gp-chart-card {{ padding: 24px; }}
-.gp-chart-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }}
+.gp-chart-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }}
 .gp-chart-title-row {{ display: flex; align-items: center; gap: 12px; }}
+.gp-chart-controls {{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}}
+.gp-select-label {{
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}}
+.gp-chart-select {{
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}}
+.gp-chart-select:focus {{
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}}
 .gp-chart-legend {{ display: flex; gap: 16px; font-size: 12px; color: #334155; font-weight: 600; }}
 .gp-legend-item {{ display: flex; align-items: center; gap: 6px; }}
 .dot-emerald {{ width: 10px; height: 10px; border-radius: 50%; background: #059669; }}
 .dot-teal {{ width: 10px; height: 10px; border-radius: 50%; background: #0d9488; }}
 .dot-amber {{ width: 10px; height: 10px; border-radius: 50%; background: #d97706; }}
 .dot-blue {{ width: 10px; height: 10px; border-radius: 50%; background: #2563eb; }}
+.gp-chart-hist-bar {{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: 16px;
+  align-items: center;
+}}
 .gp-chart-canvas-wrap {{ position: relative; width: 100%; height: 240px; }}
+.gp-chart-loading-overlay {{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  z-index: 10;
+  border-radius: 12px;
+}}
 
 /* Form Elements */
 .gp-form-row {{ display: flex; gap: 16px; }}
@@ -1345,6 +1945,292 @@ md-toolbar.nr-dashboard-toolbar {{
   scope.hardwareConfirmed = false;
   scope.isSubmitting = false;
 
+  // Internationalization (i18n) Engine - English & Natural Sri Lankan Sinhala
+  scope.currentLang = localStorage.getItem('gp_lang') || 'en';
+
+  scope.i18n = {{
+    'en': {{
+      'brand_hub': 'GreenPulse',
+      'brand_iot_hub': 'IoT Hub',
+      'brand_iot_core': 'IoT Core',
+      'reg_subtitle': 'Botanical Node Pairing & Plant Registration',
+      'dash_subtitle': 'Autonomous Botanical Intelligence & Plant Care',
+      'step1_title': '1. Identify Plant via Gemini 3.8 Flash AI:',
+      'plant_search_placeholder': 'Type plant name or species (e.g. Tomato, Snake Plant, Curry Leaves, Aloe Vera, Chili...)',
+      'btn_ai_search': '✨ AI Identify & Calibrate',
+      'btn_ai_searching': 'AI Consulting...',
+      'botanical_suggestions': '💡 Botanical Suggestions:',
+      'ai_banner_title': 'Gemini 3.8 Flash Botanical Model in progress...',
+      'ai_banner_desc': 'Consulting taxonomic databases and calculating precise root-zone volumetric moisture boundaries...',
+      'pending_banner_title': 'Select or type a plant, then click "✨ AI Identify & Calibrate"',
+      'pending_banner_desc': 'Choose a suggestion above or enter any species name, then click the calibrate button to compute optimal root-zone soil moisture boundaries.',
+      'gemini_verified': '✨ Gemini AI Botanical Verified',
+      'auto_calibration_title': 'Autonomous Soil Moisture Calibration (AWS IoT Sync):',
+      'min_safe_limit': 'Min Safe Limit (Wilting Stress)',
+      'max_safe_limit': 'Max Safe Limit (Root Rot Risk)',
+      'calibration_note': '✓ Calculated by Gemini AI based on root-zone transpiration science. Automatically persisted to AWS DynamoDB. No manual adjustment required.',
+      'sunlight_req': 'Sunlight Requirement',
+      'watering_freq': 'Watering Frequency',
+      'care_profile': 'Botanical Care Profile:',
+      'step2_title': '2. Microclimate Location & GPS Acquisition:',
+      'btn_gps_detect': '🛰️ Auto-Detect via GPS Module',
+      'btn_gps_loading': 'Acquiring GPS Signal...',
+      'select_city_label': 'Or Select Microclimate Weather Station (Sri Lanka):',
+      'step3_title': '3. Physical Hardware Verification:',
+      'hardware_confirm_prefix': 'I confirm that the physical ESP32 soil moisture probe and DS18B20 temperature sensor have been firmly planted into',
+      'hardware_confirm_suffix': "'s soil root zone (3–4 inches deep).",
+      'btn_complete_reg': '🌿 Complete AI Registration & Launch Live Monitor',
+      'btn_registering': 'Registering & Syncing with AWS DynamoDB...',
+      'device_node': 'ESP32 Node:',
+      'aws_connected': 'AWS IoT Core (Port 8883) CONNECTED',
+      'aws_waiting': 'Waiting for ESP32 Live Stream',
+      'sl_time_zone': 'Sri Lanka Standard Time',
+      'btn_switch_plant': 'Switch Plant / Move Device',
+      'btn_move_device': 'Move Device',
+      'btn_refresh': 'Refresh',
+      'active_plant_label': 'Active Plant Species',
+      'safe_root_moisture': '🎯 Safe Root Moisture:',
+      'live_weather_label': 'Live City Microclimate',
+      'air_humidity': 'Air Humidity',
+      'rain_alert': 'Rain Expected within 24h — Automated Irrigation Delay Advised',
+      'rain_clear': 'Clear Weather Forecast — Regular Irrigation Schedule Active',
+      'soil_moisture_name': 'Soil Moisture (Root Level)',
+      'soil_temp_name': 'Soil Temperature (DS18B20)',
+      'amb_temp_name': 'Ambient Temperature (DHT22)',
+      'amb_humidity_name': 'Relative Humidity (DHT22)',
+      'air_quality_name': 'Air Quality Level (MQ)',
+      'air_pressure_name': 'Barometric Pressure',
+      'optimal_hydration': 'Optimal Hydration',
+      'water_deficit': 'Water Deficit',
+      'excess_moisture': 'Excess Moisture',
+      'awaiting_data': 'Awaiting Data',
+      'optimal_thermal': 'Optimal Thermal',
+      'heat_warning': 'Heat Warning',
+      'pure_clean': 'Pure & Clean',
+      'subsurface_probe': 'Sub-surface Probe',
+      'air_moisture': 'Air Moisture',
+      'gas_purity': 'Gas & Purity',
+      'bmp_pressure': 'BMP280 I2C',
+      'safe_target_for': 'Safe Target for',
+      'root_comfort_zone': 'Root Comfort Zone:',
+      'thermal_ceiling': 'Thermal Ceiling Limit:',
+      'safe_under': 'Safe <',
+      'transpiration_comfort': 'Transpiration Comfort:',
+      'air_purity_bench': 'Air Purity Benchmark:',
+      'mslp_standard': 'Standard MSLP Pressure:',
+      'pred_hero_title': '7-Day Botanical Predictive Intelligence & Drying Curve',
+      'pred_hero_sub': 'Synthesized from 7-day AWS DynamoDB telemetry, soil evaporation kinetics, and microclimate',
+      'pred_reanalyze_btn': 'Re-analyze 7-Day Model',
+      'hydration_reserve_title': 'Estimated Hydration Reserve',
+      'days_reserve': 'Days Reserve',
+      'hours_reserve': 'Hours Reserve',
+      'depletion_pace_title': '7-Day Empirical Telemetry Dynamics',
+      'seven_day_pace': '7-Day Soil Moisture Pace:',
+      'hourly_evaporation': 'Hourly Evaporation Pace:',
+      'per_hour_loss': 'moisture loss / hour',
+      'root_microclimate_mean': 'Root Microclimate Ambient Mean:',
+      'peak_temp': 'Peak:',
+      'dynamodb_depth': 'DynamoDB Telemetry Sample Depth:',
+      'readings_analyzed': 'Readings Analyzed',
+      'agronomic_action_title': 'Agronomic Care & Irrigation Action',
+      'rain_synergy_title': 'Rain Forecast Synergy:',
+      'rain_synergy_body': 'Precipitation forecasted within 24h. Soil drying curve naturally buffered.',
+      'clear_synergy_title': 'Clear Weather Forecast:',
+      'clear_synergy_body': 'Stable sun expected. Natural evapotranspiration pace remains active.',
+      'actionable_rec_for': 'Actionable Recommendation for',
+      'optimal_timing_title': 'Optimal Timing:',
+      'optimal_timing_text': 'Early morning watering (06:30 – 08:30 AM) prevents root thermal shock and minimizes midday vapor loss.',
+      'reserve_secure': '● HYDRATION RESERVE SECURE',
+      'deficit_alert': '⚠️ ROOT MOISTURE DEFICIT ALERT',
+      'chart_title': 'Multi-Sensor Telemetry Trends',
+      'range_label': 'Range:',
+      'range_live': '🟢 Live (60s Stream)',
+      'range_24h': '📅 Last 24 Hours',
+      'range_7d': '📊 Last Week (7 Days)',
+      'range_30d': '🗓️ Last Month (30 Days)',
+      'legend_moisture': 'Moisture',
+      'legend_soil_t': 'Soil T',
+      'legend_amb_t': 'Amb T',
+      'legend_humidity': 'Humidity',
+      'avg_moisture': 'Avg Moisture:',
+      'drying_pace': '7-Day Drying Pace:',
+      'peak_temp_label': 'Peak Temp:',
+      'records_label': 'Readings:',
+      'ai_doctor_title': 'Gemini 3.8 Flash Plant Doctor',
+      'ai_doctor_sub': 'Synthesizing Sensors + Botanical Calibrations + Microclimate',
+      'btn_ai_doctor_run': 'Run Gemini AI Diagnosis',
+      'btn_ai_doctor_consulting': 'Consulting Gemini AI...',
+      'ai_analyzing_text': 'Synthesizing real-time telemetry, soil moisture, and forecast with Gemini 3.8 Flash...',
+      'ai_footer_model': 'Model: Google Gemini 3.8 Flash',
+      'ai_footer_engine': 'Decision Engine: Synchronized',
+      'ai_footer_telemetry': 'Physical Telemetry: Live Stream',
+      'modal_title': 'Physical Hardware Sensor Relocation Protocol',
+      'modal_warn_title': 'CRITICAL HARDWARE STEP REQUIRED BEFORE REGISTERING NEW PLANT:',
+      'modal_warn_body': 'You are about to switch monitoring to a new plant. You MUST physically move your ESP32 sensors to ensure accurate telemetry and prevent false AI care diagnoses.',
+      'r_step1_title': 'Extract Sensor Probes:',
+      'r_step1_desc': 'Gently withdraw the capacitive soil moisture sensor and DS18B20 stainless steel probe from the current pot.',
+      'r_step2_title': 'Clean the Probes:',
+      'r_step2_desc': 'Wipe probe tips dry with clean tissue to remove mineral buildup and cross-contaminating root microbes.',
+      'r_step3_title': 'Insert in New Target Plant:',
+      'r_step3_desc': 'Push both probes 3 to 4 inches deep into the soil of your new target plant near the root zone.',
+      'r_step4_title': 'Verify ESP32 Power:',
+      'r_step4_desc': 'Confirm the ESP32 board is securely powered and Wi-Fi indicator stays on.',
+      'modal_confirm_label': "I confirm that I have physically relocated and planted the ESP32 probes into the new plant's soil.",
+      'modal_cancel_btn': 'Cancel',
+      'modal_proceed_btn': 'Proceed to Register New Plant ➔'
+    }},
+    'si': {{
+      'brand_hub': 'GreenPulse',
+      'brand_iot_hub': 'IoT මධ්‍යස්ථානය',
+      'brand_iot_core': 'IoT පද්ධතිය',
+      'reg_subtitle': 'ස්මාර්ට් සංවේදක සම්බන්ධ කිරීම සහ ශාකය ලියාපදිංචිය',
+      'dash_subtitle': 'ස්වයංක්‍රීය ශාක බුද්ධිය සහ සත්කාරක පද්ධතිය',
+      'step1_title': '1. Gemini 3.8 Flash AI හරහා ශාකය හඳුනාගැනීම:',
+      'plant_search_placeholder': 'ශාකයේ නම මෙහි ලියන්න (උදා: තක්කාලි, කරපිංචා, කෝමාරිකා, මිරිස්, බෝගන්විලා, රෝස...)',
+      'btn_ai_search': '✨ AI මගින් හඳුනාගෙන සකසන්න',
+      'btn_ai_searching': 'AI සොයමින් පවතී...',
+      'botanical_suggestions': '💡 සුලභ ශාක වර්ග:',
+      'ai_banner_title': 'Gemini 3.8 Flash ආකෘතිය ක්‍රියාත්මකයි...',
+      'ai_banner_desc': 'තෝරාගත් ශාකයට අදාළව පසේ තෙතමනයේ සුදුසුම සීමාවන් ගණනය කරමින් පවතී...',
+      'pending_banner_title': 'ශාකයක් තෝරා "✨ AI මගින් හඳුනාගෙන සකසන්න" ක්ලික් කරන්න',
+      'pending_banner_desc': 'ඉහත ඇති යෝජනා වලින් එකක් තෝරන්න හෝ ඔබ කැමති ඕනෑම ශාකයක නම ලියා පරික්ෂා කරන්න.',
+      'gemini_verified': '✨ Gemini AI විද්‍යාත්මක තහවුරු කිරීම',
+      'auto_calibration_title': 'පසේ අවශ්‍ය තෙතමන සීමාවන් (AWS IoT හරහා සම්බන්ධයි):',
+      'min_safe_limit': 'අවම ආරක්ෂිත සීමාව (මැලවීමේ අවදානම)',
+      'max_safe_limit': 'උපරිම සීමාව (මුල් කුණුවීමේ අවදානම)',
+      'calibration_note': '✓ ශාකයේ මුල්වල ජල අවශ්‍යතාවය අනුව Gemini AI විසින් ස්වයංක්‍රීයව සකසන ලදී. DynamoDB හි සුරැකිණි.',
+      'sunlight_req': 'හිරු එළිය අවශ්‍යතාවය',
+      'watering_freq': 'ජලය යෙදිය යුතු ආකාරය',
+      'care_profile': 'ශාක සත්කාරක සාරාංශය:',
+      'step2_title': '2. ක්ෂුද්‍ර දේශගුණ පිහිටීම සහ GPS සම්බන්ධතාවය:',
+      'btn_gps_detect': '🛰️ GPS මගින් ස්ථානය ස්වයංක්‍රීයව හඳුනාගන්න',
+      'btn_gps_loading': 'GPS චන්ද්‍රිකා සංඥා ලබාගනිමින්...',
+      'select_city_label': 'හෝ ඔබගේ ගෙවත්ත / වගාබිම පිහිටි නගරය තෝරන්න (ශ්‍රී ලංකාව):',
+      'step3_title': '3. භෞතික උපකරණ නිවැරදිව සවි කර ඇති බව තහවුරු කිරීම:',
+      'hardware_confirm_prefix': 'මම ESP32 තෙතමන සංවේදක පුවරුව සහ DS18B20 උෂ්ණත්ව සංවේදකය',
+      'hardware_confirm_suffix': 'පැළයේ මුල් ආසන්නයේ පස තුළට (අඟල් 3–4ක් යටට) නිවැරදිව ඇතුළු කළ බව තහවුරු කරමි.',
+      'btn_complete_reg': '🌿 ලියාපදිංචිය අවසන් කර Live Monitor එකට යන්න',
+      'btn_registering': 'AWS DynamoDB සමඟ සම්බන්ධ කරමින් පවතී...',
+      'device_node': 'ESP32 උපාංගය:',
+      'aws_connected': 'AWS IoT Core (Port 8883) සම්බන්ධයි',
+      'aws_waiting': 'ESP32 දත්ත ලැබෙනතුරු රැඳී සිටී...',
+      'sl_time_zone': 'ශ්‍රී ලංකා සම්මත වේලාව',
+      'btn_switch_plant': 'ශාකය වෙනස් කරන්න / වෙනත් පැළයකට මාරු කරන්න',
+      'btn_move_device': 'වෙනත් පැළයකට මාරු කරන්න',
+      'btn_refresh': 'යාවත්කාලීන කරන්න',
+      'active_plant_label': 'දැනට අධීක්ෂණය වන ශාකය',
+      'safe_root_moisture': '🎯 පසේ තෙතමනයේ සුදුසු සීමාව:',
+      'live_weather_label': 'ප්‍රදේශයේ සජීවී කාලගුණය',
+      'air_humidity': 'වායුගෝලීය ආර්ද්‍රතාවය',
+      'rain_alert': '🌧️ ඉදිරි පැය 24 තුළ වැසි අපේක්ෂා කෙරේ — ජලය දැමීම පමා කරන්න',
+      'rain_clear': '☀️ පැහැදිලි වියළි කාලගුණයක් — සාමාන්‍ය පරිදි වතුර යොදන්න',
+      'soil_moisture_name': 'පසේ තෙතමනය (මුල් මට්ටම)',
+      'soil_temp_name': 'පසේ උෂ්ණත්වය (DS18B20)',
+      'amb_temp_name': 'පරිසර උෂ්ණත්වය (DHT22)',
+      'amb_humidity_name': 'වායුගෝලීය ආර්ද්‍රතාවය (DHT22)',
+      'air_quality_name': 'වායු ගුණාත්මක මට්ටම (MQ)',
+      'air_pressure_name': 'වායු පීඩනය (BMP280)',
+      'optimal_hydration': 'තෙතමනය ප්‍රශස්තයි',
+      'water_deficit': 'වතුර අවශ්‍යයි',
+      'excess_moisture': 'වතුර වැඩියි',
+      'awaiting_data': 'දත්ත ලැබෙමින්...',
+      'optimal_thermal': 'උෂ්ණත්වය යෝග්‍යයි',
+      'heat_warning': 'අධික රස්නයක්',
+      'pure_clean': 'පිරිසිදු වාතය',
+      'subsurface_probe': 'පස තුළ සංවේදකය',
+      'air_moisture': 'වායු තෙතමනය',
+      'gas_purity': 'වායුවේ පිරිසිදු බව',
+      'bmp_pressure': 'වායුගෝල පීඩනය',
+      'safe_target_for': 'සුදුසුම තෙතමනය:',
+      'root_comfort_zone': 'මුල්වලට සුදුසුම පරාසය:',
+      'thermal_ceiling': 'ආරක්ෂිත උපරිම උෂ්ණත්වය:',
+      'safe_under': 'අවදානම් සීමාව <',
+      'transpiration_comfort': 'පත්‍රවලට යෝග්‍ය වාර්ද්‍රතාවය:',
+      'air_purity_bench': 'වායු සංශුද්ධතාවය:',
+      'mslp_standard': 'සාමාන්‍ය මුහුදු මට්ටමේ පීඩනය:',
+      'pred_hero_title': 'ඉදිරි දින 7 සඳහා පසේ තෙතමනය සහ ජල අවශ්‍යතා අනාවැකිය',
+      'pred_hero_sub': 'පසුගිය දින 7 තුළ DynamoDB දත්ත, පසේ වාෂ්පීකරණ වේගය සහ ප්‍රාදේශීය කාලගුණය විශ්ලේෂණය කර සකසන ලදී',
+      'pred_reanalyze_btn': 'නැවත අනාවැකිය ගණනය කරන්න',
+      'hydration_reserve_title': 'තෙතමනය ඉතිරිව ඇති කාලය',
+      'days_reserve': 'දිනක තෙතමනයක් ඇත',
+      'hours_reserve': 'පැයක තෙතමනයක් ඇත',
+      'depletion_pace_title': 'දින 7 තුළ පසේ හැසිරීම සහ වාෂ්පීකරණය',
+      'seven_day_pace': 'දින 7 ක පසේ තෙතමන වෙනස:',
+      'hourly_evaporation': 'පැයකට ජලය වාෂ්පීකරණ වේගය:',
+      'per_hour_loss': 'පැයකට තෙතමනය අඩුවීම',
+      'root_microclimate_mean': 'මුල් අවට සාමාන්‍ය උෂ්ණත්වය:',
+      'peak_temp': 'උපරිම:',
+      'dynamodb_depth': 'DynamoDB වාර්තා ගැඹුර:',
+      'readings_analyzed': 'දත්ත සටහන් පරික්ෂා කෙරිණි',
+      'agronomic_action_title': 'ඔබ විසින් කළ යුතු ජල කළමනාකරණය',
+      'rain_synergy_title': 'වර්ෂාව නිසා ලැබෙන වාසිය:',
+      'rain_synergy_body': 'ඉදිරි පැය 24 තුළ වැසි ලැබෙන බැවින් පසේ තෙතමනය ස්වභාවිකව ආරක්ෂා වේ.',
+      'clear_synergy_title': 'පැහැදිලි හිරු එළිය පවතින කාලගුණය:',
+      'clear_synergy_body': 'හිරු එළිය නිසා සාමාන්‍ය වේගයෙන් ජලය වාෂ්පීකරණය සිදුවේ.',
+      'actionable_rec_for': 'ශාකය සඳහා උපදෙස:',
+      'optimal_timing_title': 'සුදුසුම වේලාව:',
+      'optimal_timing_text': 'උදෑසන 06:30 – 08:30 අතර ජලය යෙදීමෙන් මුල්වලට සිදුවන තාප කම්පනය වළක්වාගත හැකි අතර වාෂ්පීකරණය අවම කරයි.',
+      'reserve_secure': '● තෙතමනය ආරක්ෂිත මට්ටමක පවතී',
+      'deficit_alert': '⚠️ පසේ තෙතමනය අඩුවීමේ අවදානමක්',
+      'chart_title': 'සංවේදක දත්ත ප්‍රස්ථාරය',
+      'range_label': 'කාල පරාසය:',
+      'range_live': '🟢 සජීවීව (තත්. 60)',
+      'range_24h': '📅 පසුගිය පැය 24',
+      'range_7d': '📊 පසුගිය සතිය (දින 7)',
+      'range_30d': '🗓️ පසුගිය මාසය (දින 30)',
+      'legend_moisture': 'පසේ තෙතමනය',
+      'legend_soil_t': 'පසේ උෂ්ණත්වය',
+      'legend_amb_t': 'පරිසර උෂ්ණත්වය',
+      'legend_humidity': 'වායු ආර්ද්‍රතාවය',
+      'avg_moisture': 'සාමාන්‍ය තෙතමනය:',
+      'drying_pace': 'දින 7 තෙතමන වෙනස:',
+      'peak_temp_label': 'උපරිම උෂ්ණත්වය:',
+      'records_label': 'වාර්තා:',
+      'ai_doctor_title': 'Gemini 3.8 Flash AI ශාක වෛද්‍යවරයා',
+      'ai_doctor_sub': 'සංවේදක දත්ත + ශාක වර්ගය + ප්‍රාදේශීය කාලගුණය මුසු කර',
+      'btn_ai_doctor_run': 'පරීක්ෂා කර උපදෙස් ලබාගන්න',
+      'btn_ai_doctor_consulting': 'Gemini AI විමසමින් පවතී...',
+      'ai_analyzing_text': 'සජීවී සංවේදක දත්ත, පසේ තෙතමනය සහ කාලගුණය Gemini 3.8 Flash මගින් විශ්ලේෂණය කරමින් පවතී...',
+      'ai_footer_model': 'ආකෘතිය: Google Gemini 3.8 Flash',
+      'ai_footer_engine': 'තීරණ පද්ධතිය: සමමුහුර්තයි',
+      'ai_footer_telemetry': 'භෞතික සංවේදක: සජීවීව ක්‍රියාත්මකයි',
+      'modal_title': 'සංවේදක උපකරණ වෙනත් පැළයකට මාරු කිරීමේ ක්‍රමවේදය',
+      'modal_warn_title': 'නව ශාකයක් ලියාපදිංචි කිරීමට පෙර අනිවාර්යයෙන් කළ යුතු පියවර:',
+      'modal_warn_body': 'ඔබ දැනට පවතින ශාකයෙන් වෙනත් නව ශාකයක් වෙත මාරු වීමට සූදානම් වේ. නිවැරදි දත්ත ලබාගැනීමට සහ AI උපදෙස් නිවැරදිව ලැබීමට ESP32 සංවේදක භෞතිකව ගලවා නව පැළයේ සිටුවිය යුතුය.',
+      'r_step1_title': 'සංවේදක පරිස්සමින් ගලවන්න:',
+      'r_step1_desc': 'දැනට ඇති පෝච්චියෙන් තෙතමන සංවේදකය සහ DS18B20 උෂ්ණත්ව කූර පරිස්සමින් ඉවතට ගන්න.',
+      'r_step2_title': 'සංවේදක පිසදමන්න:',
+      'r_step2_desc': 'කලින් පසේ තිබූ ලවණ සහ විෂබීජ නව පැළයට නොයන සේ පිරිසිදු ටිෂූ එකකින් සංවේදකයේ අග හොඳින් පිසදමන්න.',
+      'r_step3_title': 'නව පැළයේ සිටුවන්න:',
+      'r_step3_desc': 'නව ශාකයේ මුල් ආසන්නයෙන් අඟල් 3 සිට 4 දක්වා ගැඹුරට සංවේදක දෙකම පස තුළට ඇතුළු කරන්න.',
+      'r_step4_title': 'විදුලි බලය පරීක්ෂා කරන්න:',
+      'r_step4_desc': 'ESP32 උපාංගයේ බලය සහ Wi-Fi බල්බය දැල්වී ඇත්දැයි තහවුරු කරගන්න.',
+      'modal_confirm_label': 'මම සංවේදක ගලවා පිරිසිදු කර නව ශාකයේ පස තුළ නිවැරදිව ස්ථානගත කළ බව තහවුරු කරමි.',
+      'modal_cancel_btn': 'අවලංගු කරන්න',
+      'modal_proceed_btn': 'නව ශාකය ලියාපදිංචි කිරීමට ඉදිරියට යන්න ➔'
+    }}
+  }};
+
+  scope.t = function(key) {{
+    var lang = scope.currentLang || 'en';
+    if (scope.i18n[lang] && scope.i18n[lang][key] !== undefined) {{
+      return scope.i18n[lang][key];
+    }}
+    if (scope.i18n['en'] && scope.i18n['en'][key] !== undefined) {{
+      return scope.i18n['en'][key];
+    }}
+    return key;
+  }};
+
+  scope.setLanguage = function(lang) {{
+    scope.currentLang = lang;
+    localStorage.setItem('gp_lang', lang);
+    scope.fetch7DayPrediction();
+    scope.evaluateStatus();
+    scope.drawCanvasChart();
+    scope.$applyAsync();
+  }};
+
   scope.presets = {{
     "Tomato": {{"min_moisture": 50.0, "max_moisture": 75.0, "notes": "High moisture requirement, steady hydration"}},
     "Rose": {{"min_moisture": 30.0, "max_moisture": 70.0, "notes": "Moderate moisture, thrives in sun"}},
@@ -1360,33 +2246,33 @@ md-toolbar.nr-dashboard-toolbar {{
   scope.quickCities = ["Colombo", "Kandy", "Galle", "Kurunegala", "Negombo", "Gampaha", "Nuwara Eliya", "Jaffna"];
 
   // AI Plant Search & Autonomous Calibration State
-  scope.plantSearchQuery = "Snake Plant";
+  scope.plantSearchQuery = "";
   scope.aiSearching = false;
   scope.aiPlantProfile = null;
 
   // Registration Form State
   scope.regData = {{
-    plant_name: "Snake Plant",
-    scientific_name: "Dracaena trifasciata",
-    category: "Asparagaceae / Succulent Foliage",
+    plant_name: "",
+    scientific_name: "",
+    category: "",
     location_name: "Colombo",
-    min_moisture: 20.0,
-    max_moisture: 45.0,
-    sunlight: "Low to bright indirect light",
-    watering_frequency: "Every 2 to 4 weeks",
-    notes: "Resilient drought-tolerant plant"
+    min_moisture: null,
+    max_moisture: null,
+    sunlight: "",
+    watering_frequency: "",
+    notes: ""
   }};
 
   // Active Monitoring Plant State
   scope.plant = {{
-    plant_name: "Snake Plant",
-    scientific_name: "Dracaena trifasciata",
-    category: "Asparagaceae / Succulent Foliage",
+    plant_name: "",
+    scientific_name: "",
+    category: "",
     location_name: "Colombo",
-    min_moisture: 20.0,
-    max_moisture: 45.0,
-    sunlight: "Low to bright indirect light",
-    watering_frequency: "Every 2 to 4 weeks",
+    min_moisture: 30.0,
+    max_moisture: 70.0,
+    sunlight: "",
+    watering_frequency: "",
     notes: ""
   }};
 
@@ -1420,6 +2306,141 @@ md-toolbar.nr-dashboard-toolbar {{
   scope.showRelocationModal = false;
   scope.relocationConfirmed = false;
 
+  // Historical & Predictive Analytics State
+  scope.selectedTimeRange = 'live';
+  scope.selectedTimeRangeLabel = 'Live';
+  scope.chartSubtitle = null;
+  scope.chartLoading = false;
+  scope.historyData = [];
+  scope.historyStats = {{}};
+
+  // Card 7: 7-Day Soil Drying & Evaporation Prediction
+  scope.prediction = {{
+    headline_val: '--',
+    headline_unit: '',
+    tag: '7-Day AI Forecast',
+    status: 'SAFE',
+    bar_pct: 70,
+    sub_title: '7-Day Depletion Pace:',
+    advisory_text: 'Analyzing 7-day soil moisture retention...'
+  }};
+
+  scope.fetch7DayPrediction = function() {{
+    fetch('http://localhost:5005/api/history?device_id=' + scope.activeDeviceId + '&range=' + (scope.selectedTimeRange !== 'live' ? scope.selectedTimeRange : '7d') + '&points=30')
+      .then(function(res) {{ return res.json(); }})
+      .then(function(hist) {{
+        var stats = (hist && hist.stats) ? hist.stats : {{}};
+        scope.historyStats = stats;
+        var currentM = (scope.sensor && scope.sensor.soil_moisture !== null) ? Number(scope.sensor.soil_moisture) : Number(stats.avg_moisture || 45.0);
+        var minM = (scope.plant && scope.plant.min_moisture) ? Number(scope.plant.min_moisture) : 30.0;
+        var maxM = (scope.plant && scope.plant.max_moisture) ? Number(scope.plant.max_moisture) : 70.0;
+
+        var isRain = scope.weather && scope.weather.rain_expected;
+        var deficit = currentM - minM;
+
+        var pace = 0.55;
+        if (stats.avg_temp > 28) pace = 0.85;
+        if (stats.avg_humidity < 60) pace += 0.2;
+        scope.prediction.loss_rate_per_hour = pace.toFixed(2);
+        scope.prediction.trend_text = stats.drying_trend || 'Stable Moisture';
+
+        var isSi = (scope.currentLang === 'si');
+        if (deficit <= 0) {{
+          scope.prediction.headline_val = "0.0";
+          scope.prediction.headline_unit = isSi ? "පැය (අවම සීමාවේ)" : "Hours (At Safe Min)";
+          scope.prediction.tag = isSi ? "වතුර අවශ්‍යයි" : "Irrigation Due";
+          scope.prediction.status = "DEFICIT";
+          scope.prediction.bar_pct = Math.max(10, Math.round((currentM / maxM) * 100));
+          scope.prediction.countdown_subtext = isSi 
+            ? ("පසේ තෙතමනය (" + currentM.toFixed(1) + "%) ආරක්ෂිත අවම සීමාවට (" + minM + "%) ළඟා වී හෝ ඊට වඩා අඩුවී ඇත.")
+            : ("Current soil moisture (" + currentM.toFixed(1) + "%) is at or below safe limit (" + minM + "%).");
+          scope.prediction.advisory_text = isRain 
+            ? (isSi ? "පසේ තෙතමනය අඩුවී ඇතත් (" + currentM.toFixed(1) + "%), ඉදිරි පැය 24 තුළ වැසි බලාපොරොත්තු වන නිසා පස ස්වභාවිකවම තෙත් වනු ඇත. දැනට අනවශ්‍ය ලෙස වතුර දැමීමෙන් වළකින්න." : "Soil moisture is depleted (" + currentM.toFixed(1) + "%), but precipitation forecasted in next 24h will naturally replenish roots. Avoid over-watering now.")
+            : (isSi ? "පසේ තෙතමනය තීරණාත්මක අවම සීමාවට (" + minM + "%) පැමිණ ඇත. මුල් වියළී යාම සහ පැළය මැලවීම වැළැක්වීමට අදම මුල් අවට ප්‍රදේශයට මදක් ජලය යොදන්න." : "Soil moisture is under critical stress (" + minM + "% threshold reached). Apply gentle irrigation today to safeguard root vitality.");
+        }} else {{
+          var hoursLeft = deficit / pace;
+          var daysLeft = (hoursLeft / 24).toFixed(1);
+
+          if (hoursLeft > 48) {{
+            scope.prediction.headline_val = daysLeft;
+            scope.prediction.headline_unit = isSi ? "දිනක තෙතමනයක් ඇත" : "Days Reserve";
+            scope.prediction.tag = isSi ? "තෙතමනය සුරක්ෂිතයි" : "Hydration Reserve Secure";
+            scope.prediction.status = "SAFE";
+            scope.prediction.bar_pct = Math.min(100, Math.round((currentM / maxM) * 100));
+            scope.prediction.countdown_subtext = isSi
+              ? ("අවම ආරක්ෂිත සීමාව (" + minM + "%) කරා ළඟා වීමට තව පැය " + Math.round(hoursLeft) + " ක පමණ කාලයක් පවතී.")
+              : ("~" + Math.round(hoursLeft) + " hours of safe hydration remaining until critical " + minM + "% threshold.");
+            scope.prediction.advisory_text = isRain
+              ? (isSi ? "මුල් අවට තෙතමනය ඉතා යහපත් මට්ටමක පවතී. ඉදිරි පැය 24 තුළ වැසි ලැබුණහොත් තෙතමනය තවදුරටත් ආරක්ෂා වන අතර දින " + daysLeft + " ක් යනතුරු අමතර වතුර දැමීමක් අවශ්‍ය නොවේ." : "Root zone hydration is stable. Rain expected within 24h will naturally replenish soil, extending safe reserve beyond " + daysLeft + " days.")
+              : (isSi ? "පසේ ජලය වාෂ්පීකරණය සාමාන්‍ය අගයක (" + pace.toFixed(2) + "%/පැය) පවතී. ඉදිරි දින " + daysLeft + " තුළ පැළයට අවශ්‍ය තෙතමනය ප්‍රමාණවත්ව පවතින බැවින් හදිසි ජල යෙදීමක් අවශ්‍ය නොවේ." : "Steady evaporation rate (" + pace.toFixed(2) + "%/hr). Soil moisture will comfortably sustain root vitality for the next " + daysLeft + " days without urgent watering.");
+          }} else {{
+            scope.prediction.headline_val = Math.round(hoursLeft);
+            scope.prediction.headline_unit = isSi ? "පැයක තෙතමනයක් ඇත" : "Hours Reserve";
+            scope.prediction.tag = isSi ? "තෙතමනය අඩුවෙමින්" : "Depleting Soon";
+            scope.prediction.status = "DEFICIT";
+            scope.prediction.bar_pct = Math.max(15, Math.round((currentM / maxM) * 100));
+            scope.prediction.countdown_subtext = isSi
+              ? ("ඉදිරි පැය " + Math.round(hoursLeft) + " ඇතුළත ආරක්ෂිත අවම සීමාවට (" + minM + "%) ළඟා වනු ඇත.")
+              : ("Approaching safe minimum threshold (" + minM + "%) within the next " + Math.round(hoursLeft) + " hours.");
+            scope.prediction.advisory_text = isSi
+              ? "පසේ තෙතමනය ක්‍රමයෙන් අඩුවෙමින් පවතී. හෙට උදෑසන අව්ව රත්වීමට පෙර මුල් ප්‍රදේශයට වතුර ස්වල්පයක් දැමීමට සැලසුම් කරන්න."
+              : "Soil moisture is trending downward steadily. Plan an irrigation session tomorrow morning before midday heat spikes.";
+          }}
+        }}
+        scope.$applyAsync();
+      }}).catch(function(err) {{
+        console.warn("Prediction fetch error:", err);
+      }});
+  }};
+
+  scope.onRangeChange = function() {{
+    var isSi = (scope.currentLang === 'si');
+    if (scope.selectedTimeRange === 'live') {{
+      scope.selectedTimeRangeLabel = isSi ? 'සජීවීව' : 'Live';
+      scope.chartSubtitle = isSi 
+        ? ('සජීවී තත්පර 60 සංවේදක ප්‍රවාහය (' + (scope.plant.plant_name || 'ශාකය') + ')')
+        : ('Live 60-Second Real-time Sensor Stream for ' + (scope.plant.plant_name || 'Plant'));
+      scope.drawCanvasChart();
+      return;
+    }}
+
+    var rangeLabelsEn = {{
+      '24h': 'Last 24 Hours',
+      '7d': 'Last Week (7 Days)',
+      '30d': 'Last Month (30 Days)'
+    }};
+    var rangeLabelsSi = {{
+      '24h': 'පසුගිය පැය 24',
+      '7d': 'පසුගිය සතිය (දින 7)',
+      '30d': 'පසුගිය මාසය (දින 30)'
+    }};
+    scope.selectedTimeRangeLabel = isSi ? (rangeLabelsSi[scope.selectedTimeRange] || scope.selectedTimeRange) : (rangeLabelsEn[scope.selectedTimeRange] || scope.selectedTimeRange);
+    scope.chartSubtitle = isSi
+      ? ('AWS DynamoDB ඓතිහාසික දත්ත (' + scope.selectedTimeRangeLabel + ') - ' + (scope.plant.plant_name || 'ශාකය'))
+      : ('AWS DynamoDB Historical Telemetry (' + scope.selectedTimeRangeLabel + ') for ' + (scope.plant.plant_name || 'Plant'));
+    scope.chartLoading = true;
+
+    fetch('http://localhost:5005/api/history?device_id=' + scope.activeDeviceId + '&range=' + scope.selectedTimeRange + '&points=30')
+      .then(function(res) {{ return res.json(); }})
+      .then(function(data) {{
+        scope.chartLoading = false;
+        if (data && data.success && data.data) {{
+          scope.historyData = data.data;
+          scope.historyStats = data.stats || {{}};
+        }} else {{
+          scope.historyData = [];
+          scope.historyStats = {{}};
+        }}
+        scope.drawCanvasChart();
+        scope.$applyAsync();
+      }})
+      .catch(function(err) {{
+        scope.chartLoading = false;
+        console.error("Historical fetch failed:", err);
+        scope.$applyAsync();
+      }});
+  }};
+
   scope.currentTime = new Date().toLocaleTimeString();
   setInterval(function() {{
     scope.currentTime = new Date().toLocaleTimeString();
@@ -1433,16 +2454,15 @@ md-toolbar.nr-dashboard-toolbar {{
       scope.viewMode = 'dashboard';
     }} else {{
       scope.viewMode = 'register';
-      scope.searchAndIdentifyPlant();
     }}
 
     scope.fetchBackendConfig();
     scope.initChart();
+    scope.fetch7DayPrediction();
   }};
 
   scope.quickSelectPlant = function(name) {{
     scope.plantSearchQuery = name;
-    scope.searchAndIdentifyPlant();
   }};
 
   // Gemini 3.8 Flash Plant Identification & Moisture Calibration
@@ -1629,6 +2649,14 @@ md-toolbar.nr-dashboard-toolbar {{
     scope.viewMode = 'register';
     scope.plantSearchQuery = "";
     scope.aiPlantProfile = null;
+    scope.regData.plant_name = "";
+    scope.regData.scientific_name = "";
+    scope.regData.category = "";
+    scope.regData.min_moisture = null;
+    scope.regData.max_moisture = null;
+    scope.regData.sunlight = "";
+    scope.regData.watering_frequency = "";
+    scope.regData.notes = "";
     scope.$applyAsync();
   }};
 
@@ -1663,8 +2691,11 @@ md-toolbar.nr-dashboard-toolbar {{
   }};
 
   scope.evaluateStatus = function() {{
+    var isSi = (scope.currentLang === 'si');
     if (!scope.hasReceivedTelemetry || scope.sensor.soil_moisture === null) {{
-      scope.aiAdviceHtml = '<div style="color:#64748b; font-style:italic; padding: 25px 0; text-align:center;"><p>Waiting for live sensor data from ESP32 for <strong>' + (scope.plant.plant_name || 'your plant') + '</strong>...</p><small>Once telemetry arrives, click "Run Gemini AI Diagnosis" to analyze plant health.</small></div>';
+      scope.aiAdviceHtml = isSi
+        ? '<div style="color:#64748b; font-style:italic; padding: 25px 0; text-align:center;"><p><strong>' + (scope.plant.plant_name || 'ඔබගේ ශාකය') + '</strong> සඳහා ESP32 සංවේදක දත්ත ලැබෙනතුරු රැඳී සිටී...</p><small>දත්ත ලැබුණු පසු "පරීක්ෂා කර උපදෙස් ලබාගන්න" ක්ලික් කර ශාකයේ සෞඛ්‍ය තත්ත්වය සහ උපදෙස් ලබාගන්න.</small></div>'
+        : '<div style="color:#64748b; font-style:italic; padding: 25px 0; text-align:center;"><p>Waiting for live sensor data from ESP32 for <strong>' + (scope.plant.plant_name || 'your plant') + '</strong>...</p><small>Once telemetry arrives, click "Run Gemini AI Diagnosis" to analyze plant health.</small></div>';
       return;
     }}
   }};
@@ -1676,7 +2707,8 @@ md-toolbar.nr-dashboard-toolbar {{
       headers: {{ 'Content-Type': 'application/json' }},
       body: JSON.stringify({{
         sensor: scope.sensor,
-        plant: scope.plant
+        plant: scope.plant,
+        lang: scope.currentLang
       }})
     }})
     .then(function(res) {{ return res.json(); }})
@@ -1692,7 +2724,10 @@ md-toolbar.nr-dashboard-toolbar {{
     }})
     .catch(function(err) {{
       scope.aiLoading = false;
-      scope.aiAdviceHtml = '<p>Unable to connect to Gemini AI Server on port 5005. Please check backend.</p>';
+      var errMsg = (scope.currentLang === 'si')
+        ? '<p style="color:#dc2626;">Gemini AI සේවාව හා සම්බන්ධ වීමේ දෝෂයක්. කරුණාකර පසුබිම් සේවාදායකය පරීක්ෂා කරන්න.</p>'
+        : '<p style="color:#dc2626;">Unable to connect to Gemini AI Server on port 5005. Please check backend.</p>';
+      scope.aiAdviceHtml = errMsg;
       scope.$applyAsync();
     }});
   }};
@@ -1713,7 +2748,16 @@ md-toolbar.nr-dashboard-toolbar {{
     if (p.timestamp) scope.sensor.timestamp = p.timestamp;
 
     scope.evaluateStatus();
-    scope.updateChartPoint();
+
+    // Trigger initial 7-day prediction if not calculated yet
+    if (scope.prediction.headline_val === '--') {{
+      scope.fetch7DayPrediction();
+    }}
+
+    // Only append to live chart if currently in 'live' mode
+    if (scope.selectedTimeRange === 'live') {{
+      scope.updateChartPoint();
+    }}
     scope.$applyAsync();
   }});
 
@@ -1731,8 +2775,8 @@ md-toolbar.nr-dashboard-toolbar {{
   }};
 
   scope.updateChartPoint = function() {{
-    if (!scope.hasReceivedTelemetry) return;
-    chartHistory.labels.push(new Date().toLocaleTimeString());
+    if (!scope.hasReceivedTelemetry || scope.selectedTimeRange !== 'live') return;
+    chartHistory.labels.push(new Date().toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit', second: '2-digit' }}));
     chartHistory.moisture.push(scope.sensor.soil_moisture);
     chartHistory.soilTemp.push(scope.sensor.soil_temperature);
     chartHistory.ambTemp.push(scope.sensor.temperature);
@@ -1757,26 +2801,95 @@ md-toolbar.nr-dashboard-toolbar {{
 
     ctx.clearRect(0, 0, w, h);
 
-    // Grid lines
-    ctx.strokeStyle = '#e2e8f0';
+    var padLeft = 45;
+    var padRight = 40;
+    var padTop = 20;
+    var padBottom = 30;
+    var chartW = w - padLeft - padRight;
+    var chartH = h - padTop - padBottom;
+
+    // Draw horizontal gridlines & axis values
+    ctx.strokeStyle = '#f1f5f9';
     ctx.lineWidth = 1;
-    for (var y = 20; y < h; y += 40) {{
+    ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+    var yLevels = [
+      {{ pct: 0.00, valL: '100%', valR: '45°C' }},
+      {{ pct: 0.25, valL: '75%', valR: '36°C' }},
+      {{ pct: 0.50, valL: '50%', valR: '27°C' }},
+      {{ pct: 0.75, valL: '25%', valR: '18°C' }},
+      {{ pct: 1.00, valL: '0%', valR: '10°C' }}
+    ];
+
+    for (var l = 0; l < yLevels.length; l++) {{
+      var yPos = padTop + yLevels[l].pct * chartH;
       ctx.beginPath();
-      ctx.moveTo(40, y);
-      ctx.lineTo(w - 10, y);
+      ctx.moveTo(padLeft, yPos);
+      ctx.lineTo(w - padRight, yPos);
       ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'right';
+      ctx.fillText(yLevels[l].valL, padLeft - 6, yPos + 3);
+
+      ctx.textAlign = 'left';
+      ctx.fillText(yLevels[l].valR, w - padRight + 6, yPos + 3);
     }}
 
-    var pts = chartHistory.labels.length;
+    var isLive = (scope.selectedTimeRange === 'live');
+    var pts = 0;
+    var labels = [];
+    var moistures = [];
+    var soilTemps = [];
+    var ambTemps = [];
+    var humidities = [];
+
+    if (isLive) {{
+      pts = chartHistory.labels.length;
+      labels = chartHistory.labels;
+      moistures = chartHistory.moisture;
+      soilTemps = chartHistory.soilTemp;
+      ambTemps = chartHistory.ambTemp;
+      humidities = chartHistory.humidity;
+    }} else {{
+      pts = scope.historyData ? scope.historyData.length : 0;
+      if (pts > 0) {{
+        for (var i = 0; i < pts; i++) {{
+          var item = scope.historyData[i];
+          labels.push(item.time_label || (item.timestamp ? item.timestamp.substr(11, 5) : ''));
+          moistures.push(item.soil_moisture);
+          soilTemps.push(item.soil_temperature);
+          ambTemps.push(item.temperature);
+          humidities.push(item.humidity);
+        }}
+      }}
+    }}
+
     if (pts < 2) {{
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Waiting for real-time ESP32 sensor stream...', w / 2, h / 2);
+      var emptyMsg = isLive 
+        ? (scope.currentLang === 'si' ? 'ESP32 සජීවී සංවේදක දත්ත ලැබෙනතුරු රැඳී සිටී...' : 'Waiting for real-time ESP32 sensor stream...')
+        : (scope.currentLang === 'si' ? 'AWS DynamoDB වෙතින් ඓතිහාසික දත්ත ලබාගනිමින් පවතී...' : 'Loading historical telemetry from AWS DynamoDB...');
+      ctx.fillText(emptyMsg, w / 2, h / 2);
       return;
     }}
 
-    var stepX = (w - 60) / (pts - 1);
+    var stepX = chartW / (pts - 1);
+
+    // Draw X-axis timestamps
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    var labelInterval = Math.max(1, Math.floor(pts / 5));
+    for (var xIdx = 0; xIdx < pts; xIdx += labelInterval) {{
+      var posX = padLeft + xIdx * stepX;
+      ctx.fillText(labels[xIdx] || '', posX, h - 8);
+    }}
+    if ((pts - 1) % labelInterval !== 0) {{
+      ctx.fillText(labels[pts - 1] || '', padLeft + (pts - 1) * stepX, h - 8);
+    }}
 
     function plotLine(data, color, minV, maxV) {{
       ctx.strokeStyle = color;
@@ -1784,29 +2897,66 @@ md-toolbar.nr-dashboard-toolbar {{
       ctx.beginPath();
       for (var i = 0; i < pts; i++) {{
         var val = data[i];
+        if (val === null || val === undefined) val = minV;
         var normY = (val - minV) / (maxV - minV);
         if (normY < 0) normY = 0;
         if (normY > 1) normY = 1;
-        var cx = 45 + i * stepX;
-        var cy = h - 25 - normY * (h - 50);
+        var cx = padLeft + i * stepX;
+        var cy = padTop + (1 - normY) * chartH;
         if (i === 0) ctx.moveTo(cx, cy);
         else ctx.lineTo(cx, cy);
       }}
       ctx.stroke();
 
-      var lastX = 45 + (pts - 1) * stepX;
-      var lastNorm = (data[pts - 1] - minV) / (maxV - minV);
-      var lastY = h - 25 - lastNorm * (h - 50);
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-      ctx.fill();
+      // Sampled points
+      var stepPoint = Math.max(1, Math.floor(pts / 8));
+      for (var p = 0; p < pts; p += stepPoint) {{
+        var v = data[p];
+        if (v === null || v === undefined) continue;
+        var nY = (v - minV) / (maxV - minV);
+        if (nY < 0) nY = 0;
+        if (nY > 1) nY = 1;
+        var px = padLeft + p * stepX;
+        var py = padTop + (1 - nY) * chartH;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }}
+
+      // Last point circle
+      var lastIdx = pts - 1;
+      var lastVal = data[lastIdx];
+      if (lastVal !== null && lastVal !== undefined) {{
+        var lNorm = (lastVal - minV) / (maxV - minV);
+        if (lNorm < 0) lNorm = 0;
+        if (lNorm > 1) lNorm = 1;
+        var lx = padLeft + lastIdx * stepX;
+        var ly = padTop + (1 - lNorm) * chartH;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }}
     }}
 
-    plotLine(chartHistory.moisture, '#059669', 0, 100);
-    plotLine(chartHistory.soilTemp, '#0d9488', 10, 40);
-    plotLine(chartHistory.ambTemp, '#d97706', 10, 45);
-    plotLine(chartHistory.humidity, '#2563eb', 0, 100);
+    // Plot lines:
+    // 1. Soil Moisture (#059669, 0-100%)
+    plotLine(moistures, '#059669', 0, 100);
+
+    // 2. Soil Temp DS18B20 (#0d9488, 10-45°C)
+    plotLine(soilTemps, '#0d9488', 10, 45);
+
+    // 3. Ambient Temp DHT22 (#d97706, 10-45°C)
+    plotLine(ambTemps, '#d97706', 10, 45);
+
+    // 4. Humidity DHT22 (#2563eb, 0-100%)
+    plotLine(humidities, '#2563eb', 0, 100);
   }};
 
   window.addEventListener('resize', function() {{
